@@ -244,13 +244,31 @@ Aᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅs:
 • /pbatch - <code>Jᴜsᴛ ʟɪᴋᴇ /batch, ʙᴜᴛ ᴛʜᴇ ғɪʟᴇs ᴡɪʟʟ ʙᴇ sᴇɴᴅ ᴡɪᴛʜ ғᴏʀᴡᴀʀᴅ ʀᴇsᴛʀɪᴄᴛɪᴏɴs.</code>
 • /plink - <code>Jᴜsᴛ ʟɪᴋᴇ /link, ʙᴜᴛ ᴛʜᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ sᴇɴᴅ ᴡɪᴛʜ ғᴏʀᴡᴀʀᴅ ʀᴇsᴛʀɪᴄᴛɪᴏɴ.</code>"""
 
-    RESTART_TXT = """
-<b>Bᴏᴛ Rᴇsᴛᴀʀᴛᴇᴅ !
+    REPORT_TXT = """#Daily_Report
 
-📅 Dᴀᴛᴇ : <code>{}</code>
-⏰ Tɪᴍᴇ : <code>{}</code>
-🌐 Tɪᴍᴇᴢᴏɴᴇ : <code>Asia/Kolkata</code>
-🛠️ Bᴜɪʟᴅ Sᴛᴀᴛᴜs: <code>v2.7.1 [ Sᴛᴀʙʟᴇ ]</code></b>"""
+Date = {a}
+Time = {c}
+
+Total
+Total Users = <code>{d}</code>
+Total Chats = <code>{e}</code>
+
+Yesterday
+{b} Users = <code>{f}</code>
+{b} Chats = <code>{g}</code>
+
+#{h}
+#Report_{h}"""
+
+    RESTART_TXT = """#Restarted
+
+🔄 Bot Restarted!
+📅 Date: <code>{a}</code>
+⏰ Time: <code>{b}</code>
+🌐 Timezone: <code>Asia/Kolkata</code>
+
+#{c}
+#Restart_{c}"""
 
     LOGO = """
 
