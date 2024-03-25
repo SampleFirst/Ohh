@@ -77,10 +77,10 @@ async def save_group(bot, message):
                         await temp.MELCOW['welcome'].delete()
                     except Exception as e:
                         print(e)
-    
+                mention = new_member.mention if new_member else chat.title
                 temp.MELCOW['welcome'] = await message.reply_photo(
                     photo=MELCOW_VID,
-                    caption=script.MELCOW_ENG.format(new_member.username, message.chat.title),
+                    caption=script.MELCOW_ENG.format(mention, message.chat.title),
                     reply_markup=InlineKeyboardMarkup(
                         [
                             [
