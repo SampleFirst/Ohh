@@ -90,7 +90,24 @@ class Database:
             if user:
                 return user.get("verification_status", default)
         return default
-    
+
+    async def save_chat_invite_link(self, chat_id, invite_link):
+        chat = await self.grp.update_one({'id': int(chat_id)})
+        if not chat:
+            await self.grp2.update_one({'id': int(chat_id)}, {'$set': {'invite_link': invite_link}})
+        else:
+            await self.grp.update_one({'id': int(chat_id)}, {'$set': {'invite_link': invite_link}})
+            
+    async def get_chat_invite_link(self, chat_id):
+        chat = await self.grp.find_one({'id': int(chat_id)})
+        if chat:
+            return chat.get('invite_link', None)
+        else:
+            chat = await self.grp2.find_one({'id': int(chat_id)})
+            if chat:
+                return chat.get('invite_link', None)
+        return None
+        
     async def add_user(self, id, name):
         user = self.new_user(id, name)
         print(f"tempDict: {tempDict['indexDB']}\n\nDATABASE_URI: {DATABASE_URI}")
