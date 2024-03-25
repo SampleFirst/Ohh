@@ -172,8 +172,8 @@ class Database:
         return b_users, b_chats
     
 
-    async def add_chat(self, chat, title):
-        chat = self.new_group(chat, title)
+    async def add_chat(self, chat, title, username):
+        chat = self.new_group(chat, title, username)
         print(f"tempDict: {tempDict['indexDB']}\n\nDATABASE_URI: {DATABASE_URI}")
         if tempDict['indexDB'] == DATABASE_URI:
             await self.grp.insert_one(chat)
