@@ -92,12 +92,15 @@ class Database:
         return default
 
     async def save_chat_invite_link(self, chat_id, invite_link):
-        chat = await self.grp.update_one({'id': int(chat_id)})
+        chat = await self.grp.find_one({'id': int(chat_id)})
         if not chat:
-            await self.grp2.update_one({'id': int(chat_id)}, {'$set': {'invite_link': invite_link}})
-        else:
-            await self.grp.update_one({'id': int(chat_id)}, {'$set': {'invite_link': invite_link}})
-            
+            chat = await self.grp2.find_one({'id': int(chat_id)})
+        if chat:
+            if tempDict['indexDB'] == DATABASE_URI:
+                await self.grp.update_one({'id': int(chat_id)}, {'$set': {'invite_link': invite_link}})
+            else:
+                await self.grp2.update_one({'id': int(chat_id)}, {'$set': {'invite_link': invite_link}})
+                
     async def get_chat_invite_link(self, chat_id):
         chat = await self.grp.find_one({'id': int(chat_id)})
         if chat:
