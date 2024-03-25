@@ -90,10 +90,9 @@ async def save_group(bot, message):
                     except Exception as e:
                         print(e)
     
-                welcome_message = script.MELCOW_ENG.format(new_member.mention, message.chat.title)
                 temp.MELCOW['welcome'] = await message.reply_photo(
                     photo=MELCOW_VID,
-                    caption=welcome_message,
+                    caption=script.MELCOW_ENG.format(new_member.mention, message.chat.title),
                     reply_markup=InlineKeyboardMarkup(
                         [
                             [
