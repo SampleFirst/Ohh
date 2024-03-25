@@ -244,6 +244,81 @@ Aᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅs:
 • /pbatch - <code>Jᴜsᴛ ʟɪᴋᴇ /batch, ʙᴜᴛ ᴛʜᴇ ғɪʟᴇs ᴡɪʟʟ ʙᴇ sᴇɴᴅ ᴡɪᴛʜ ғᴏʀᴡᴀʀᴅ ʀᴇsᴛʀɪᴄᴛɪᴏɴs.</code>
 • /plink - <code>Jᴜsᴛ ʟɪᴋᴇ /link, ʙᴜᴛ ᴛʜᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ sᴇɴᴅ ᴡɪᴛʜ ғᴏʀᴡᴀʀᴅ ʀᴇsᴛʀɪᴄᴛɪᴏɴ.</code>"""
 
+    LOG_TEXT_G = """#NewGroup 😎
+
+Group: {a}
+Group ID: <code>{b}</code>
+Group UN: @{c}
+
+Total Members: <code>{d}</code>
+Total Groups: <code>{e}</code>
+Today Groups: <code>{f}</code>
+
+Date: <code>{g}</code>
+Time: <code>{h}</code>
+
+Added By: {i}
+By {j}
+
+#{k}
+#Chats_{k}
+"""
+    
+    LOG_TEXT_P = """NewUsers 😀
+    
+ID: <code>{a}</code>
+Name: {b}
+Username: @{c}
+
+Total Users: {d}
+Today Users: {e}
+
+Date: <code>{f}</code>
+Time: <code>{g}</code>
+
+By {h}
+#{i}
+#Users_{i}
+"""
+    
+    NEW_MEMBER = """#NewMember 😀
+
+Group = {a}
+Group ID = <code>{b}</code>
+Group UN = @{c}
+Total Member = <code>{d}</code>
+Invite = {e}
+           
+Member = {f}
+Member ID = <code>{g}</code>
+Member UN = @{h}
+
+Date = <code>{i}</code>
+Time = <code>{j}</code>
+
+#{k}
+#NewMem_{k}
+"""
+
+    LEFT_MEMBER = """#LeftMember 😔
+
+Group = {a}
+Group ID = <code>{b}</code>
+Group UN = @{c}
+Total Member = <code>{d}</code>
+Invite = {e}
+           
+Member = {f}
+Member ID = <code>{g}</code>
+Member UN = @{h}
+
+Date = <code>{i}</code>
+Time = <code>{j}</code>
+
+#{k}
+#LeftMem_{k}
+"""
+    
     REPORT_TXT = """#Daily_Report
 
 Date = {a}
