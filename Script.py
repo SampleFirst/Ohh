@@ -257,14 +257,14 @@ Today Groups: <code>{f}</code>
 Date: <code>{g}</code>
 Time: <code>{h}</code>
 
-Added By: {i}
-By {j}
+Added By: @{i}
+By @{j}
 
 #{k}
-#Chats_{k}
+#Chat_{k}
 """
     
-    LOG_TEXT_P = """NewUsers 😀
+    LOG_TEXT_P = """#NewUsers 😀
     
 ID: <code>{a}</code>
 Name: {b}
@@ -276,9 +276,9 @@ Today Users: {e}
 Date: <code>{f}</code>
 Time: <code>{g}</code>
 
-By {h}
+By @{h}
 #{i}
-#Users_{i}
+#User_{i}
 """
     
     NEW_MEMBER = """#NewMember 😀
