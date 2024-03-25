@@ -496,6 +496,34 @@ async def delete_all_index_confirm(bot, message):
     await message.message.edit('Sᴜᴄᴄᴇsғᴜʟʟʏ Dᴇʟᴇᴛᴇᴅ Aʟʟ Tʜᴇ Iɴᴅᴇxᴇᴅ Fɪʟᴇs.')
 
 
+@Client.on_message(filters.command('deletealldata') & filters.user(ADMINS))
+async def delete_all_data(bot, message):
+    await message.reply_text(
+        'Tʜɪs ᴡɪʟʟ ᴅᴇʟᴇᴛᴇ ᴀʟʟ.\nDᴏ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ ?',
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text="Yᴇs", callback_data="autodelete"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="Cᴀɴᴄᴇʟ", callback_data="close_data"
+                    )
+                ],
+            ]
+        ),
+        quote=True,
+    )
+
+
+@Client.on_callback_query(filters.regex(r'^autodelete'))
+async def delete_all_confirm(bot, message):
+    await db.delete_all_data()
+    await message.answer("Eᴠᴇʀʏᴛʜɪɴɢ's Gᴏɴᴇ")
+    await message.message.edit('Sᴜᴄᴄᴇsғᴜʟʟʏ Dᴇʟᴇᴛᴇᴅ Aʟʟ Tʜᴇ Iɴᴅᴇxᴇᴅ Fɪʟᴇs.')
+
 @Client.on_message(filters.command('settings'))
 async def settings(client, message):
     userid = message.from_user.id if message.from_user else None
