@@ -61,7 +61,7 @@ async def add_new_chat(client, chat):
     await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(a=chat.title, b=chat.id, c=chat.username, d=total_members, e=total_chats, f=daily_chats, g=str(today), h=time, i="Unknown", j=temp.B_NAME, k=temp.U_NAME))
     
     
-async def add_new_user(user):
+async def add_new_user(client, user):
     tz = pytz.timezone('Asia/Kolkata')
     now = datetime.now(tz)
     today = now.date()
@@ -70,7 +70,7 @@ async def add_new_user(user):
     daily_users = await db.daily_users_count(today) + 1
     await db.add_user(user.id, user.first_name)
     await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(a=user.id, b=user.mention, c=user.username, d=total_users, e=daily_users, f=str(today), g=time, h=temp.B_NAME, i=temp.U_NAME))
-
+    
 
 async def is_subscribed(bot, query=None, userid=None):
     try:
