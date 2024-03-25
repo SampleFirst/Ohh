@@ -57,7 +57,7 @@ async def add_new_chat(client, chat):
     total_members = await client.get_chat_members_count(chat.id)
     total_chats = await db.total_chat_count() + 1
     daily_chats = await db.daily_chats_count(today) + 1
-    await db.add_chat(chat.id, chat.title)
+    await db.add_chat(chat.id, chat.title, chat.username)
     await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(a=chat.title, b=chat.id, c=chat.username, d=total_members, e=total_chats, f=daily_chats, g=str(today), h=time, i="Unknown", j=temp.B_NAME, k=temp.U_NAME))
     
     
