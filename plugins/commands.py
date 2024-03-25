@@ -41,7 +41,7 @@ async def start(client, message):
             await add_new_chat(client, message.chat)
         return
     if not await db.is_user_exist(message.from_user.id):
-        await add_new_user(message.from_user)
+        await add_new_user(client, message.from_user)
     if len(message.command) != 2:
         buttons = [
             [
