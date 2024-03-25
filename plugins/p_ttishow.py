@@ -16,7 +16,6 @@ async def save_group(bot, message):
     new_members = [member.id for member in message.new_chat_members]
     if temp.ME in new_members:
         if not await db.get_chat(message.chat.id):
-            total = await bot.get_chat(message.chat.id):
             total_members = await bot.get_chat_members_count(message.chat.id)
             total_chat = await db.total_chat_count() + 1
             daily_chats = await db.daily_chats_count(today) + 1
