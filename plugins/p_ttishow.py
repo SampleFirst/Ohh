@@ -14,7 +14,7 @@ import pytz
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
-    new_members = [member.id for member in message.new_chat_members]
+    new_members = [new_member.id for new_member in message.new_chat_members]
     if temp.ME in new_members:
         if not await db.get_chat(message.chat.id):
             tz = pytz.timezone('Asia/Kolkata')
