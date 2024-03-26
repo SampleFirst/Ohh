@@ -18,8 +18,17 @@ async def save_group(bot, message):
     new_members = [member.id for member in message.new_chat_members]
     if temp.ME in new_members:
         if not await db.get_chat(message.chat.id):
-            await add_new_chat_members(bot, message)
-            
+            tz = timezone('Asia/Kolkata')
+            now = datetime.now(tz)
+            time = now.strftime('%I:%M:%S %p')
+            today = now.date()
+            total_members = await bot.get_chat_members_count(message.chat.id)
+            total_chat = await db.total_chat_count() + 1
+            daily_chats = await db.daily_chats_count(today) + 1
+            referrer = message.from_user.mention if message.from_user else "Anonymous"
+            await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=total_chats, f=daily_chats, g=str(today), h=time, i=referrer, j=temp.B_NAME, k=temp.U_NAME))
+            await db.add_chat(message.chat.id, message.chat.title, message.chat.username)
+
         if message.chat.id in temp.BANNED_CHATS:
             buttons = [[
                 InlineKeyboardButton('Support', url=GRP_LNK)
