@@ -291,7 +291,7 @@ Invite = {e}
            
 Member = {f}
 Member ID = <code>{g}</code>
-Member UN = {h}
+Member UN = @{h}
 
 Date = <code>{i}</code>
 Time = <code>{j}</code>
@@ -310,7 +310,7 @@ Invite = {e}
            
 Member = {f}
 Member ID = <code>{g}</code>
-Member UN = {h}
+Member UN = @{h}
 
 Date = <code>{i}</code>
 Time = <code>{j}</code>
