@@ -7,13 +7,11 @@ from database.ia_filterdb import Media, Media2,  db as clientDB, db2 as clientDB
 from utils import add_new_chat_members, get_size, temp, get_settings
 from Script import script
 from pyrogram.errors import ChatAdminRequired, ChannelPrivate
-import asyncio
-import logging
+import asyncio 
 from pytz import timezone
 from datetime import datetime
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
@@ -65,7 +63,6 @@ async def save_group(bot, message):
                 try:
                     invite_link = await bot.export_chat_invite_link(chat_id)
                 except ChatAdminRequired:
-                    logger.error("Make sure Bot is admin in the group")
                     invite_link = "Not an Admin"
                     return
                 await db.save_chat_invite_link(chat_id, invite_link)
@@ -154,10 +151,9 @@ async def goodbye(bot, message):
             try:
                 invite_link = await bot.export_chat_invite_link(chat_id)
             except ChannelPrivate:
-                logger.error("Make sure Bot is admin in the group")
                 invite_link = "Not an Admin"
+                return 
             except ChatAdminRequired:
-                logger.error("Make sure Bot is admin in the group")
                 invite_link = "Not an Admin"
                 return
             await db.save_chat_invite_link(chat_id, invite_link)
@@ -166,7 +162,6 @@ async def goodbye(bot, message):
     try:
         total_members = await bot.get_chat_members_count(message.chat.id)
     except ChannelPrivate:
-        logger.error("Make sure Bot is admin in the group")
         total_members = "Not an Admin"
         return
     
