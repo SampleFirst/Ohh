@@ -67,7 +67,12 @@ async def save_group(bot, message):
         if invite_link is None:
             invite_link = await db.get_chat_invite_link(chat_id)
             if invite_link is None:
-                invite_link = await bot.export_chat_invite_link(chat_id)
+                try:
+                    invite_link = await bot.export_chat_invite_link(chat_id)
+                except ChatAdminRequired:
+                    logger.error("Make sure Bot is admin in the group")
+                    invite_link = "Not an Admin"
+                    return
                 await db.save_chat_invite_link(chat_id, invite_link)
     
         if settings["welcome"]:
@@ -77,10 +82,11 @@ async def save_group(bot, message):
                         await temp.MELCOW['welcome'].delete()
                     except Exception as e:
                         print(e)
-                mention = new_member.mention if new_member else chat.title
+    
+                welcome_message = script.MELCOW_ENG.format(new_member.mention, message.chat.title)
                 temp.MELCOW['welcome'] = await message.reply_photo(
-                    photo=MELCOW_VID,
-                    caption=script.MELCOW_ENG.format(mention, message.chat.title),
+                    photo=MELCOW_PIC,
+                    caption=welcome_message,
                     reply_markup=InlineKeyboardMarkup(
                         [
                             [
