@@ -4,7 +4,7 @@ from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInv
 from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, MELCOW_NEW_USERS, MELCOW_VID, CHNL_LNK, GRP_LNK
 from database.users_chats_db import db
 from database.ia_filterdb import Media, Media2,  db as clientDB, db2 as clientDB2
-from utils import add_new_chat_members, get_size, temp, get_settings
+from utils import get_size, temp, get_settings
 from Script import script
 from pyrogram.errors import ChatAdminRequired, ChannelPrivate
 import asyncio 
@@ -39,7 +39,6 @@ async def save_group(bot, message):
                 reply_markup=reply_markup,
                 parse_mode=enums.ParseMode.HTML
             )
-
             try:
                 await sent_message.pin()
             except Exception as e:
