@@ -37,9 +37,17 @@ async def start(client, message):
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
-        await asyncio.sleep(4)
+        await asyncio.sleep(2)
         if not await db.get_chat(message.chat.id):
-            await add_new_chat(client, message.chat)
+            tz = pytz.timezone('Asia/Kolkata')
+            now = datetime.now(tz)
+            time = now.strftime('%I:%M:%S %p')
+            today = now.date()
+            total_members = await client.get_chat_members_count(message.chat.id)
+            total_chats = await db.total_chat_count() + 1
+            daily_chats = await db.daily_chats_count(today) + 1
+            await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=total_chats, f=daily_chats, g=str(today), h=time, i="Unknown", j=temp.B_NAME, k=temp.U_NAME))
+            await db.add_chat(message.chat.id, message.chat.title, message.chat.username)
         return
     if not await db.is_user_exist(message.from_user.id):
         await add_new_user(client, message.from_user)
