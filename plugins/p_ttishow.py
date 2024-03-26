@@ -150,17 +150,31 @@ async def goodbye(bot, message):
     if invite_link is None:
         invite_link = await db.get_chat_invite_link(chat_id)
         if invite_link is None:
-            invite_link = await bot.export_chat_invite_link(chat_id)
+            try:
+                invite_link = await bot.export_chat_invite_link(chat_id)
+            except ChatAdminRequired:
+                logger.error("Make sure Bot is admin in the group")
+                invite_link = "Not an Admin"
+                return
             await db.save_chat_invite_link(chat_id, invite_link)
-
-    left_member = message.left_chat_member  # Get the left member info
-    total_members = await bot.get_chat_members_count(message.chat.id)
+    
+    # Get total members count
+    try:
+        total_members = await bot.get_chat_members_count(message.chat.id)
+    except ChatAdminRequired:
+        logger.error("Make sure Bot is admin in the group")
+        total_members = "Not an Admin"
+        return
+    
+    # Get current time and date
     tz = timezone('Asia/Kolkata')
     now = datetime.now(tz)
     time = now.strftime('%I:%M:%S %p')
     date = now.date()
     
+    # Check if chat exists in the database
     if await db.get_chat(message.chat.id):
+        left_member = message.left_chat_member  # Get the left member info
         await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(
             a=message.chat.title,
             b=message.chat.id,
