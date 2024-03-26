@@ -174,7 +174,7 @@ async def goodbye(bot, message):
         return
     
     # Get current time and date
-    tz = timezone('Asia/Kolkata')
+    tz = pytz.timezone('Asia/Kolkata')
     now = datetime.now(tz)
     time = now.strftime('%I:%M:%S %p')
     date = now.date()
