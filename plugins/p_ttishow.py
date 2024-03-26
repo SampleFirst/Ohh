@@ -158,6 +158,9 @@ async def goodbye(bot, message):
         if invite_link is None:
             try:
                 invite_link = await bot.export_chat_invite_link(chat_id)
+            except ChannelPrivate:
+                logger.error("Make sure Bot is admin in the group")
+                invite_link = "Not an Admin"
             except ChatAdminRequired:
                 logger.error("Make sure Bot is admin in the group")
                 invite_link = "Not an Admin"
