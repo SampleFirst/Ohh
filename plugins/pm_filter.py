@@ -11,7 +11,7 @@ from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidD
 from Script import script
 from database.connections_mdb import active_connection, all_connections, delete_connection, if_active, make_active, \
     make_inactive
-from info import ADMINS, AUTH_CHANNEL, AUTH_USERS, SUPPORT_CHAT_ID, CUSTOM_FILE_CAPTION, MSG_ALRT, PICS, GRP_LNK, CHNL_LNK, NOR_IMG, LOG_CHANNEL, SPELL_IMG, MAX_B_TN, \
+from info import ADMINS, AUTH_CHANNEL, AUTH_USERS, SUPPORT_CHAT_ID, FILE_FORWARD, FILE_CHANNEL, CUSTOM_FILE_CAPTION, MSG_ALRT, PICS, GRP_LNK, CHNL_LNK, NOR_IMG, LOG_CHANNEL, SPELL_IMG, MAX_B_TN, \
     NO_RESULTS_MSG, IS_VERIFY, HOW_TO_VERIFY
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
 from pyrogram import Client, filters, enums
@@ -720,21 +720,44 @@ async def cb_handler(client: Client, query: CallbackQuery):
                         )
                         return await query.answer("Hᴇʏ, Yᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ᴠᴇʀɪғɪᴇᴅ ᴛᴏᴅᴀʏ. Yᴏᴜ ʜᴀᴠᴇ ᴛᴏ ᴠᴇʀɪғʏ ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ. Cʜᴇᴄᴋ ᴍʏ PM ᴛᴏ ᴠᴇʀɪғʏ ᴀɴᴅ ɢᴇᴛ ғɪʟᴇs !", show_alert=True)
                     else:
-                        await client.send_cached_media(
-                            chat_id=query.from_user.id,
+                        file_send = await client.send_cached_media(
+                            chat_id=FILE_CHANNEL,
                             file_id=file_id,
-                            caption=f_caption,
+                            caption=script.CHANNEL_CAP.format(query.from_user.mention, title, query.message.chat.title),
                             protect_content=True if ident == "filep" else False,
                             reply_markup=InlineKeyboardMarkup(
                                 [
                                     [
-                                        InlineKeyboardButton('Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ', url=GRP_LNK),
-                                        InlineKeyboardButton('Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ', url=CHNL_LNK)
+                                        InlineKeyboardButton("Update Channel", url=CHNL_LNK)
+                                    ],
+                                    [
+                                        InlineKeyboardButton(f'Hindi', 'hin'),
+                                        InlineKeyboardButton(f'Marathi', 'mar'),
+                                        InlineKeyboardButton(f'Tamil', 'tam'),
+                                        InlineKeyboardButton(f'Telugu', 'tel')
                                     ]
                                 ]
                             )
                         )
-                        return await query.answer('Cʜᴇᴄᴋ PM, I ʜᴀᴠᴇ sᴇɴᴛ ғɪʟᴇs ɪɴ PM', show_alert=True)
+                        Joel_tgx = await query.message.reply_text(
+                            script.FILE_MSG.format(query.from_user.mention, title, size),
+                            parse_mode=enums.ParseMode.HTML,
+                            reply_markup=InlineKeyboardMarkup(
+                                [
+                                    [
+                                        InlineKeyboardButton('📥 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖫𝗂𝗇𝗄 📥', url=file_send.link)
+                                    ],
+                                    [
+                                        InlineKeyboardButton("⚠️ 𝖢𝖺𝗇'𝗍 𝖠𝖼𝖼𝖾𝗌𝗌 ❓ 𝖢𝗅𝗂𝖼𝗄 𝖧𝖾𝗋𝖾 ⚠️", url=FILE_FORWARD)
+                                    ]
+                                ]
+                            )
+                        )
+                        return await query.answer('Check PM, I have sent files in File Channel')
+                        if settings['auto_delete']:
+                            await asyncio.sleep(600)
+                            await Joel_tgx.delete()
+                            await file_send.delete()
                 else:
                     return await query.answer(f"Hᴇʏ {query.from_user.first_name}, Tʜɪs Is Nᴏᴛ Yᴏᴜʀ Mᴏᴠɪᴇ Rᴇǫᴜᴇsᴛ. Rᴇǫᴜᴇsᴛ Yᴏᴜʀ's !", show_alert=True)
         except UserIsBlocked:
@@ -1141,6 +1164,26 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "sinfo":
         await query.answer(text=script.SINFO, show_alert=True)
 
+    elif query.data == "tel":
+        await query.answer(
+            "కాపీరైట్ కారణంగా ఈ ఫైల్ 10 నిమిషాల్లో తొలగిపోతుంది, కానీ దానిని ఇక్కడికి తీసుకోవడానికి లేదా సేవ్డ్ సందేశాలలో పంపించండి మరియు డౌన్లోడ్ చేయండి!",
+            show_alert=True)
+
+    elif query.data == "mar":
+        await query.answer(
+            "कॉपीराइट मुळे ही फाइल येथून 10 मिनिटांत डिलिट केली जाईल, म्हणुन तुम्ही इथून इतर कुठे किंवा **Saved Messages** मध्ये पाठवून डाउनलोड करू शकता.",
+            show_alert=True)
+
+    elif query.data == "hin":
+        await query.answer(
+            "कॉपीराइट के कारण फ़ाइल यहां से 10 मिनट में डिलीट हो जाएगी इसलिए यहां से कहीं और ले जाकर या **Saved Messages** मे भेज कर डाउनलोड करें!",
+            show_alert=True)
+
+    elif query.data == "tam":
+        await query.answer(
+            "பதிவுசெய்தல் உங்கள் வகைப்படுத்தல் அனுமதிப்பதால், இங்கிருந்து 10 நிமிஷத்தில் நீக்கப்படும். அதனால் அந்த கோபம் மற்றொரு இடத்தில் அல்லது சேமிப்பாக சேமிக்க அல்லது சேமிக்கவும் முடியும்!",
+            show_alert=True)
+            
     elif query.data == "start":
         buttons = [
             [
