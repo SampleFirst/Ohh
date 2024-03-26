@@ -16,7 +16,7 @@ async def save_group(bot, message):
     new_members = [member.id for member in message.new_chat_members]
     if temp.ME in new_members:
         if not await db.get_chat(message.chat.id):
-            await add_new_chat_members(bot, message.chat)
+            await add_new_chat_members(bot, message)
             
         if message.chat.id in temp.BANNED_CHATS:
             buttons = [[
