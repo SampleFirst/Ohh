@@ -62,7 +62,7 @@ async def give_filter(client, message):
             return
         else:
             return await message.reply_text(
-                text=f"<b>Hᴇʏ {message.from_user.mention}, {str(total_results)} ʀᴇsᴜʟᴛs ᴀʀᴇ ғᴏᴜɴᴅ ɪɴ ᴍʏ ᴅᴀᴛᴀʙᴀsᴇ ғᴏʀ ʏᴏᴜʀ ᴏ̨ᴜᴇʀʏ {search}. Kɪɴᴅʟʏ ᴜsᴇ ɪɴʟɪɴᴇ sᴇᴀʀᴄʜ ᴏʀ ᴍᴀᴋᴇ ᴀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴀᴅᴅ ᴍᴇ ᴀs ᴀᴅᴍɪɴ ᴛᴏ ɢᴇᴛ ᴍᴏᴠɪᴇ ғɪʟᴇs. Tʜɪs ɪs ᴀ sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ sᴏ ᴛʜᴀᴛ ʏᴏᴜ ᴄᴀɴ'ᴛ ɢᴇᴛ ғɪʟᴇs ғʀᴏᴍ ʜᴇʀᴇ...\n\nFᴏʀ Mᴏᴠɪᴇs, Jᴏɪɴ @free_movies_all_languages</b>",
+                text=f"<b>Hᴇʏ {message.from_user.mention}, {str(total_results)} ʀᴇsᴜʟᴛs ᴀʀᴇ ғᴏᴜɴᴅ ɪɴ ᴍʏ ᴅᴀᴛᴀʙᴀsᴇ ғᴏʀ ʏᴏᴜʀ ᴏ̨ᴜᴇʀʏ {search}. Kɪɴᴅʟʏ ᴜsᴇ ɪɴʟɪɴᴇ sᴇᴀʀᴄʜ ᴏʀ ᴍᴀᴋᴇ ᴀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴀᴅᴅ ᴍᴇ ᴀs ᴀᴅᴍɪɴ ᴛᴏ ɢᴇᴛ ᴍᴏᴠɪᴇ ғɪʟᴇs. Tʜɪs ɪs ᴀ sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ sᴏ ᴛʜᴀᴛ ʏᴏᴜ ᴄᴀɴ'ᴛ ɢᴇᴛ ғɪʟᴇs ғʀᴏᴍ ʜᴇʀᴇ...</b>",
                 parse_mode=enums.ParseMode.HTML
             )
 @Client.on_message(filters.private & filters.text & filters.incoming)
@@ -712,7 +712,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                         ]]
                         await client.send_message(
                             chat_id=query.from_user.id,
-                            text="<b>Yᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴠᴇʀɪғɪᴇᴅ!\nKɪɴᴅʟʏ ᴠᴇʀɪғʏ ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ Sᴏ ᴛʜᴀᴛ ʏᴏᴜ ᴄᴀɴ ɢᴇᴛ ᴀᴄᴄᴇss ᴛᴏ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇs ᴜɴᴛɪʟ 12 ʜᴏᴜʀs ғʀᴏᴍ ɴᴏᴡ !</b>",
+                            text="<b>Yᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴠᴇʀɪғɪᴇᴅ!\nKɪɴᴅʟʏ ᴠᴇʀɪғʏ ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ Sᴏ ᴛʜᴀᴛ ʏᴏᴜ ᴄᴀɴ ɢᴇᴛ ᴀᴄᴄᴇss ᴛᴏ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇs ᴜɴᴛɪʟ 24 ʜᴏᴜʀs ғʀᴏᴍ ɴᴏᴡ !</b>",
                             protect_content=True if ident == 'checksubp' else False,
                             disable_web_page_preview=True,
                             parse_mode=enums.ParseMode.HTML,
@@ -733,7 +733,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                     [
                                         InlineKeyboardButton(f'Hindi', 'hin'),
                                         InlineKeyboardButton(f'Marathi', 'mar'),
-                                        InlineKeyboardButton(f'Tamil', 'tam'),
                                         InlineKeyboardButton(f'Telugu', 'tel')
                                     ]
                                 ]
@@ -754,7 +753,13 @@ async def cb_handler(client: Client, query: CallbackQuery):
                             )
                         )
                         return await query.answer('Check PM, I have sent files in File Channel')
-                        if settings['auto_delete']:
+                        try:
+                            if settings['auto_delete']:
+                                await asyncio.sleep(600)
+                                await Joel_tgx.delete()
+                                await file_send.delete()
+                        except KeyError:
+                            await save_group_settings(message.chat.id, 'auto_delete', True)
                             await asyncio.sleep(600)
                             await Joel_tgx.delete()
                             await file_send.delete()
@@ -814,27 +819,53 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 reply_markup=InlineKeyboardMarkup(btn)
             )
             return
-        await client.send_cached_media(
-            chat_id=query.from_user.id,
+        file_sendpm = await client.send_cached_media(
+            chat_id=FILE_CHANNEL,
             file_id=file_id,
-            caption=f_caption,
+            caption=script.CHANNEL_CAP.format(query.from_user.mention, title, query.message.chat.title),
             protect_content=True if ident == 'checksubp' else False,
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton('Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ', url=GRP_LNK),
-                        InlineKeyboardButton('Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ', url=CHNL_LNK)
+                        InlineKeyboardButton("Update Channel", url=CHNL_LNK)
+                    ],
+                    [
+                        InlineKeyboardButton(f'Hindi', 'hin'),
+                        InlineKeyboardButton(f'Marathi', 'mar'),
+                        InlineKeyboardButton(f'Telugu', 'tel')
                     ]
                 ]
             )
         )
+        Joel_tgxpm = await query.message.reply_text(
+            script.FILE_MSG.format(query.from_user.mention, title, size),
+            parse_mode=enums.ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton('📥 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖫𝗂𝗇𝗄 📥', url=file_send.link)
+                    ],
+                    [
+                        InlineKeyboardButton("⚠️ 𝖢𝖺𝗇'𝗍 𝖠𝖼𝖼𝖾𝗌𝗌 ❓ 𝖢𝗅𝗂𝖼𝗄 𝖧𝖾𝗋𝖾 ⚠️", url=FILE_FORWARD)
+                    ]
+                ]
+            )
+        )
+        return await query.answer('Check PM, I have sent files in File Channel')
+        await asyncio.sleep(600)
+        await Joel_tgxpm.delete()
+        await file_sendpm.delete()
+            
     elif query.data == "pages":
         await query.answer()
 
     elif query.data.startswith("send_fall"):
         temp_var, ident, offset, userid = query.data.split("#")
         if int(userid) not in [query.from_user.id, 0]:
-            return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+            if int(userid) not in ADMINS:
+                return await query.answer("Sorry, you don't have permission to perform this action.", show_alert=True)
+            else:
+                return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
         files = temp.SEND_ALL_TEMP.get(query.from_user.id)
         is_over = await send_all(client, query.from_user.id, files, ident)
         if is_over == 'done':
@@ -845,7 +876,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             return await query.answer("Hᴇʏ, Yᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ᴠᴇʀɪғɪᴇᴅ ᴛᴏᴅᴀʏ. Yᴏᴜ ʜᴀᴠᴇ ᴛᴏ ᴠᴇʀɪғʏ ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ. Cʜᴇᴄᴋ ᴍʏ PM ᴛᴏ ᴠᴇʀɪғʏ ᴀɴᴅ ɢᴇᴛ ғɪʟᴇs !", show_alert=True)
         else:
             return await query.answer(f"Eʀʀᴏʀ: {is_over}", show_alert=True)
-
+        
     elif query.data.startswith("killfilesdq"):
         ident, keyword = query.data.split("#")
         await query.message.edit_text(f"<b>Fᴇᴛᴄʜɪɴɢ Fɪʟᴇs ғᴏʀ ʏᴏᴜʀ ᴏ̨ᴜᴇʀʏ {keyword} ᴏɴ DB... Pʟᴇᴀsᴇ ᴡᴀɪᴛ...</b>")
@@ -892,19 +923,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
         if settings is not None:
             buttons = [
                 [
-                    InlineKeyboardButton('Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ',
-                                         callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ', callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}'),
                     InlineKeyboardButton('Sɪɴɢʟᴇ' if settings["button"] else 'Dᴏᴜʙʟᴇ',
                                          callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Fɪʟᴇ Sᴇɴᴅ Mᴏᴅᴇ', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
-                    InlineKeyboardButton('Mᴀɴᴜᴀʟ Sᴛᴀʀᴛ' if settings["botpm"] else 'Aᴜᴛᴏ Sᴇɴᴅ',
-                                         callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
-                ],
-                [
-                    InlineKeyboardButton('Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ',
-                                         callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ', callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["file_secure"] else '✘ Oғғ',
                                          callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}')
                 ],
@@ -914,8 +938,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#imdb#{settings["imdb"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Sᴘᴇʟʟ Cʜᴇᴄᴋ',
-                                         callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Sᴘᴇʟʟ Cʜᴇᴄᴋ', callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["spell_check"] else '✘ Oғғ',
                                          callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}')
                 ],
@@ -925,38 +948,41 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#welcome#{settings["welcome"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ',
-                                         callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ', callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}'),
                     InlineKeyboardButton('10 Mɪɴs' if settings["auto_delete"] else '✘ Oғғ',
                                          callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Aᴜᴛᴏ-Fɪʟᴛᴇʀ',
-                                         callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Aᴜᴛᴏ-Fɪʟᴛᴇʀ', callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["auto_ffilter"] else '✘ Oғғ',
                                          callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Mᴀx Bᴜᴛᴛᴏɴs',
-                                         callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Mᴀx Bᴜᴛᴛᴏɴs', callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}'),
                     InlineKeyboardButton('10' if settings["max_btn"] else f'{MAX_B_TN}',
                                          callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('SʜᴏʀᴛLɪɴᴋ',
-                                         callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('SʜᴏʀᴛLɪɴᴋ', callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["is_shortlink"] else '✘ Oғғ',
                                          callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}')
-                ]
+                ],
+                # Add more buttons as needed
             ]
+            if user_id in ADMINS:
+                buttons.insert(1, [
+                    InlineKeyboardButton('File Send Mode', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Bot PM' if settings["botpm"] else 'Channel',
+                                         callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
+                ])
+    
             reply_markup = InlineKeyboardMarkup(buttons)
             await query.message.edit_text(
-                text=f"<b>Cʜᴀɴɢᴇ Yᴏᴜʀ Sᴇᴛᴛɪɴɢs Fᴏʀ {title} As Yᴏᴜʀ Wɪsʜ ⚙</b>",
+                text=f"<b>Change Your Settings For {title} As You Wish ⚙</b>",
                 disable_web_page_preview=True,
-                parse_mode=enums.ParseMode.HTML
+                parse_mode=enums.ParseMode.HTML,
+                reply_markup=reply_markup
             )
-            await query.message.edit_reply_markup(reply_markup)
-        
     elif query.data.startswith("opnsetpm"):
         ident, grp_id = query.data.split("#")
         userid = query.from_user.id if query.from_user else None
@@ -979,19 +1005,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
         if settings is not None:
             buttons = [
                 [
-                    InlineKeyboardButton('Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ',
-                                         callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ', callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}'),
                     InlineKeyboardButton('Sɪɴɢʟᴇ' if settings["button"] else 'Dᴏᴜʙʟᴇ',
                                          callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Fɪʟᴇ Sᴇɴᴅ Mᴏᴅᴇ', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
-                    InlineKeyboardButton('Mᴀɴᴜᴀʟ Sᴛᴀʀᴛ' if settings["botpm"] else 'Aᴜᴛᴏ Sᴇɴᴅ',
-                                         callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
-                ],
-                [
-                    InlineKeyboardButton('Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ',
-                                         callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ', callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["file_secure"] else '✘ Oғғ',
                                          callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}')
                 ],
@@ -1001,8 +1020,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#imdb#{settings["imdb"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Sᴘᴇʟʟ Cʜᴇᴄᴋ',
-                                         callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Sᴘᴇʟʟ Cʜᴇᴄᴋ', callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["spell_check"] else '✘ Oғғ',
                                          callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}')
                 ],
@@ -1012,30 +1030,33 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#welcome#{settings["welcome"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ',
-                                         callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ', callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}'),
                     InlineKeyboardButton('10 Mɪɴs' if settings["auto_delete"] else '✘ Oғғ',
                                          callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Aᴜᴛᴏ-Fɪʟᴛᴇʀ',
-                                         callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Aᴜᴛᴏ-Fɪʟᴛᴇʀ', callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["auto_ffilter"] else '✘ Oғғ',
                                          callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Mᴀx Bᴜᴛᴛᴏɴs',
-                                         callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Mᴀx Bᴜᴛᴛᴏɴs', callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}'),
                     InlineKeyboardButton('10' if settings["max_btn"] else f'{MAX_B_TN}',
                                          callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('SʜᴏʀᴛLɪɴᴋ',
-                                         callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('SʜᴏʀᴛLɪɴᴋ', callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["is_shortlink"] else '✘ Oғғ',
                                          callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}')
-                ]
+                ],
+                # Add more buttons as needed
             ]
+            if user_id in ADMINS:
+                buttons.insert(1, [
+                    InlineKeyboardButton('File Send Mode', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Bot PM' if settings["botpm"] else 'Channel',
+                                         callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
+                ])
             reply_markup = InlineKeyboardMarkup(buttons)
             await client.send_message(
                 chat_id=userid,
@@ -1177,11 +1198,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "hin":
         await query.answer(
             "कॉपीराइट के कारण फ़ाइल यहां से 10 मिनट में डिलीट हो जाएगी इसलिए यहां से कहीं और ले जाकर या **Saved Messages** मे भेज कर डाउनलोड करें!",
-            show_alert=True)
-
-    elif query.data == "tam":
-        await query.answer(
-            "பதிவுசெய்தல் உங்கள் வகைப்படுத்தல் அனுமதிப்பதால், இங்கிருந்து 10 நிமிஷத்தில் நீக்கப்படும். அதனால் அந்த கோபம் மற்றொரு இடத்தில் அல்லது சேமிப்பாக சேமிக்க அல்லது சேமிக்கவும் முடியும்!",
             show_alert=True)
             
     elif query.data == "start":
@@ -1401,6 +1417,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
         )
     
     elif query.data == "admin":
+        if query.from_user.id not in ADMINS:
+            return await query.answer("Sorry, you don't have permission to perform this action.", show_alert=True)
+            
         buttons = [[
             InlineKeyboardButton('Bᴀᴄᴋ', callback_data='extra')
         ]]
@@ -1415,7 +1434,11 @@ async def cb_handler(client: Client, query: CallbackQuery):
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
+    
     elif query.data == "stats":
+        if query.from_user.id not in ADMINS:
+            return await query.answer("Sorry, you don't have permission to perform this action.", show_alert=True)
+            
         buttons = [[
             InlineKeyboardButton('Bᴀᴄᴋ', callback_data='help'),
             InlineKeyboardButton('Rᴇғʀᴇsʜ', callback_data='rfrsh')
@@ -1448,6 +1471,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
         )
     elif query.data == "rfrsh":
         await query.answer("Fetching MongoDb DataBase")
+        if query.from_user.id not in ADMINS:
+            return await query.answer("Sorry, you don't have permission to perform this action.", show_alert=True)
+            
         buttons = [[
             InlineKeyboardButton('Bᴀᴄᴋ', callback_data='help'),
             InlineKeyboardButton('Rᴇғʀᴇsʜ', callback_data='rfrsh')
@@ -1477,22 +1503,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
-    elif query.data == "owner_info":
-        btn = [[
-                InlineKeyboardButton("Bᴀᴄᴋ", callback_data="start"),
-                InlineKeyboardButton("Cᴏɴᴛᴀᴄᴛ", url="t.me/creatorbeatz")
-              ]]
-        await client.edit_message_media(
-            query.message.chat.id, 
-            query.message.id, 
-            InputMediaPhoto(random.choice(PICS))
-        )
-        reply_markup = InlineKeyboardMarkup(btn)
-        await query.message.edit_text(
-            text=(script.OWNER_INFO),
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
 
     elif query.data.startswith("setgs"):
         ident, set_type, status, grp_id = query.data.split("#")
@@ -1515,19 +1525,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
         if settings is not None:
             buttons = [
                 [
-                    InlineKeyboardButton('Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ',
-                                         callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ', callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}'),
                     InlineKeyboardButton('Sɪɴɢʟᴇ' if settings["button"] else 'Dᴏᴜʙʟᴇ',
                                          callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Fɪʟᴇ Sᴇɴᴅ Mᴏᴅᴇ', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
-                    InlineKeyboardButton('Mᴀɴᴜᴀʟ Sᴛᴀʀᴛ' if settings["botpm"] else 'Aᴜᴛᴏ Sᴇɴᴅ',
-                                         callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
-                ],
-                [
-                    InlineKeyboardButton('Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ',
-                                         callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ', callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["file_secure"] else '✘ Oғғ',
                                          callback_data=f'setgs#file_secure#{settings["file_secure"]}#{str(grp_id)}')
                 ],
@@ -1537,8 +1540,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#imdb#{settings["imdb"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Sᴘᴇʟʟ Cʜᴇᴄᴋ',
-                                         callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Sᴘᴇʟʟ Cʜᴇᴄᴋ', callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["spell_check"] else '✘ Oғғ',
                                          callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}')
                 ],
@@ -1548,30 +1550,33 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#welcome#{settings["welcome"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ',
-                                         callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ', callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}'),
                     InlineKeyboardButton('10 Mɪɴs' if settings["auto_delete"] else '✘ Oғғ',
                                          callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Aᴜᴛᴏ-Fɪʟᴛᴇʀ',
-                                         callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Aᴜᴛᴏ-Fɪʟᴛᴇʀ', callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["auto_ffilter"] else '✘ Oғғ',
                                          callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('Mᴀx Bᴜᴛᴛᴏɴs',
-                                         callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Mᴀx Bᴜᴛᴛᴏɴs', callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}'),
                     InlineKeyboardButton('10' if settings["max_btn"] else f'{MAX_B_TN}',
                                          callback_data=f'setgs#max_btn#{settings["max_btn"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('SʜᴏʀᴛLɪɴᴋ',
-                                         callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('SʜᴏʀᴛLɪɴᴋ', callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✔ Oɴ' if settings["is_shortlink"] else '✘ Oғғ',
                                          callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{str(grp_id)}')
-                ]
+                ],
+                # Add more buttons as needed
             ]
+            if user_id in ADMINS:
+                buttons.insert(1, [
+                    InlineKeyboardButton('File Send Mode', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Bot PM' if settings["botpm"] else 'Channel',
+                                         callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
+                ])
             reply_markup = InlineKeyboardMarkup(buttons)
             await query.message.edit_reply_markup(reply_markup)
     await query.answer(MSG_ALRT)
