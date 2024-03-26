@@ -147,7 +147,10 @@ async def goodbye(bot, message):
     # Check if chat exists in the database
     if await db.get_chat(message.chat.id):
         left_member = message.left_chat_member  # Get the left member info
-        await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=left_member.mention, g=left_member.id, h=left_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
+        if left_member.is_self:  # Check if the left member is the bot itself
+            await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=left_member.mention, g=left_member.id, h=left_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
+        else:
+            await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=left_member.mention, g=left_member.id, h=left_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
 
 
 @Client.on_message(filters.command('leave') & filters.user(ADMINS))
