@@ -23,23 +23,20 @@ BATCH_FILES = {}
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
     if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        buttons = [
-            [
-                InlineKeyboardButton('🤖 Updates', url=CHNL_LNK)
-            ],
-            [
-                InlineKeyboardButton('ℹ️ Help', url=f"https://t.me/{temp.U_NAME}?start=help"),
-            ]
-        ]
+        buttons = [[
+            InlineKeyboardButton('ℹ️ Help', url=f"https://t.me/{temp.U_NAME}?start=help"),
+            InlineKeyboardButton('📢 Updates', url=CHNL_LNK)
+        ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         mention = message.from_user.mention if message.from_user else message.chat.title
-        await message.reply_photo(
+        msg = await message.reply_photo(
             photo=random.choice(PICS),
             caption=script.START_TXT.format(mention, temp.U_NAME, temp.B_NAME),
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
         await asyncio.sleep(2)
+        await msg.delete()
         if not await db.get_chat(message.chat.id):
             tz = pytz.timezone('Asia/Kolkata')
             now = datetime.now(tz)
