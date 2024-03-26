@@ -27,7 +27,7 @@ async def save_group(bot, message):
             referrer = message.from_user.mention if message.from_user else "Anonymous"
             await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=total_chats, f=daily_chats, g=str(today), h=time, i=referrer, j=temp.B_NAME, k=temp.U_NAME))
             await db.add_chat(message.chat.id, message.chat.title, message.chat.username)
-
+            
         if message.chat.id in temp.BANNED_CHATS:
             buttons = [[
                 InlineKeyboardButton('Support', url=GRP_LNK)
@@ -83,7 +83,7 @@ async def save_group(bot, message):
                     except Exception as e:
                         print(e)
     
-                welcome_message = script.MELCOW_ENG.format(new_member.mention, message.chat.title)
+                welcome_message = script.MELCOW_ENG.format(new_member.username, message.chat.title)
                 temp.MELCOW['welcome'] = await message.reply_photo(
                     photo=MELCOW_PIC,
                     caption=welcome_message,
@@ -99,48 +99,24 @@ async def save_group(bot, message):
                 )
     
                 # Log new members joining the group
-                tz = timezone('Asia/Kolkata')
+                tz = pytz.timezone('Asia/Kolkata')
                 now = datetime.now(tz)
                 time = now.strftime('%I:%M:%S %p')
                 date = now.date()
                 total_members = await bot.get_chat_members_count(message.chat.id)
     
                 for new_member in new_members:
-                    await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(
-                        a=message.chat.title,
-                        b=message.chat.id,
-                        c=message.chat.username,
-                        d=total_members,
-                        e=invite_link,
-                        f=new_member.mention,
-                        g=new_member.id,
-                        h=new_member.username,
-                        i=date,
-                        j=time,
-                        k=temp.U_NAME
-                    ))
+                    await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=new_member.mention, g=new_member.id, h=new_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
         else:
             # Log new members joining the group
-            tz = timezone('Asia/Kolkata')
+            tz = pytz.timezone('Asia/Kolkata')
             now = datetime.now(tz)
             time = now.strftime('%I:%M:%S %p')
             date = now.date()
             total_members = await bot.get_chat_members_count(message.chat.id)
     
             for new_member in new_members:
-                await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(
-                    a=message.chat.title,
-                    b=message.chat.id,
-                    c=message.chat.username,
-                    d=total_members,
-                    e=invite_link,
-                    f=new_member.mention,
-                    g=new_member.id,
-                    h=new_member.username,
-                    i=date,
-                    j=time,
-                    k=temp.U_NAME
-                ))
+                await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=new_member.mention, g=new_member.id, h=new_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
 
         if settings["auto_delete"]:
             await asyncio.sleep(600)
@@ -182,19 +158,7 @@ async def goodbye(bot, message):
     # Check if chat exists in the database
     if await db.get_chat(message.chat.id):
         left_member = message.left_chat_member  # Get the left member info
-        await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(
-            a=message.chat.title,
-            b=message.chat.id,
-            c=message.chat.username,
-            d=total_members,
-            e=invite_link,
-            f=left_member.mention,
-            g=left_member.id,
-            h=left_member.username,
-            i=date,
-            j=time,
-            k=temp.U_NAME
-        ))
+        await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=left_member.mention, g=left_member.id, h=left_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
 
 @Client.on_message(filters.command('leave') & filters.user(ADMINS))
 async def leave_a_chat(bot, message):
@@ -385,7 +349,7 @@ async def unban_a_user(bot, message):
 @Client.on_message(filters.command('users') & filters.user(ADMINS))
 async def list_users(bot, message):
     # https://t.me/GetTGLink/4184
-    raju = await message.reply('Getting List Of Users')
+    msg = await message.reply('Getting List Of Users')
     users = await db.get_all_users()
     out = "Users Saved In DB Are:\n\n"
     for user in users:
@@ -394,7 +358,7 @@ async def list_users(bot, message):
             out += '( Banned User )'
         out += '\n'
     try:
-        await raju.edit_text(out)
+        await msg.edit_text(out)
     except MessageTooLong:
         with open('users.txt', 'w+') as outfile:
             outfile.write(out)
@@ -402,7 +366,7 @@ async def list_users(bot, message):
 
 @Client.on_message(filters.command('chats') & filters.user(ADMINS))
 async def list_chats(bot, message):
-    raju = await message.reply('Getting List Of chats')
+    msg = await message.reply('Getting List Of chats')
     chats = await db.get_all_chats()
     out = "Chats Saved In DB Are:\n\n"
     for chat in chats:
@@ -411,7 +375,7 @@ async def list_chats(bot, message):
             out += '( Disabled Chat )'
         out += '\n'
     try:
-        await raju.edit_text(out)
+        await msg.edit_text(out)
     except MessageTooLong:
         with open('chats.txt', 'w+') as outfile:
             outfile.write(out)
