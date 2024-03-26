@@ -4,7 +4,7 @@ from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInv
 from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, MELCOW_NEW_USERS, MELCOW_VID, CHNL_LNK, GRP_LNK
 from database.users_chats_db import db
 from database.ia_filterdb import Media, Media2,  db as clientDB, db2 as clientDB2
-from utils import get_size, temp, get_settings
+from utils import add_new_chat_members, get_size, temp, get_settings
 from Script import script
 from pyrogram.errors import ChatAdminRequired, ChannelPrivate
 import asyncio
@@ -16,16 +16,7 @@ async def save_group(bot, message):
     new_members = [member.id for member in message.new_chat_members]
     if temp.ME in new_members:
         if not await db.get_chat(message.chat.id):
-            tz = timezone('Asia/Kolkata')
-            now = datetime.now(tz)
-            time = now.strftime('%I:%M:%S %p')
-            today = now.date()
-            total_members = await bot.get_chat_members_count(message.chat.id)
-            total_chats = await db.total_chat_count() + 1
-            daily_chats = await db.daily_chats_count(today) + 1
-            referrer = message.from_user.mention if message.from_user else "Anonymous"
-            await db.add_chat(message.chat.id, message.chat.title, message.chat.username)
-            await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=total_chats, f=daily_chats, g=str(today), h=time, i=referrer, j=temp.B_NAME, k=temp.U_NAME))
+            await add_new_chat_members(bot, message.chat)
             
         if message.chat.id in temp.BANNED_CHATS:
             buttons = [[
