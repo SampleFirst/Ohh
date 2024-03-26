@@ -94,7 +94,7 @@ async def save_group(bot, message):
                 total_members = await bot.get_chat_members_count(message.chat.id)
     
                 for member in new_members:
-                    await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=member.mention, g=member.id, h=member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
+                    await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=message.from_user.mention, g=message.from_user.id, h=message.from_user.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
         else:
             # Log new members joining the group
             tz = pytz.timezone('Asia/Kolkata')
@@ -104,8 +104,8 @@ async def save_group(bot, message):
             total_members = await bot.get_chat_members_count(message.chat.id)
     
             for member in new_members:
-                await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=member.mention, g=member.id, h=member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
-
+                await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=message.from_user.mention, g=message.from_user.id, h=message.from_user.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
+        
         if settings["auto_delete"]:
             await asyncio.sleep(600)
             await temp.MELCOW['welcome'].delete()
