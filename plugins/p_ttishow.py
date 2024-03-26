@@ -147,7 +147,12 @@ async def goodbye(bot, message):
     # Check if chat exists in the database
     if await db.get_chat(message.chat.id):
         left_member = message.left_chat_member  # Get the left member info
-        if left_member.id == bot.id:  # Check if the left member is the bot itself
+        
+        # Get bot's information
+        bot_info = await bot.get_me()
+        bot_id = bot_info.id
+        
+        if left_member.id == bot_id:  # Check if the left member is the bot itself
             await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=left_member.mention, g=left_member.id, h=left_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
         else:
             await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=left_member.mention, g=left_member.id, h=left_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
