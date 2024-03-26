@@ -19,6 +19,7 @@ import base64
 logger = logging.getLogger(__name__)
 
 BATCH_FILES = {}
+RESULTS_PER_PAGE = 10
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
@@ -352,33 +353,42 @@ async def start(client, message):
 
 @Client.on_message(filters.command('channel') & filters.user(ADMINS))
 async def channel_info(bot, message):
-           
-    """Send basic information of channel"""
-    if isinstance(CHANNELS, (int, str)):
-        channels = [CHANNELS]
-    elif isinstance(CHANNELS, list):
-        channels = CHANNELS
-    else:
-        raise ValueError("Uɴᴇxᴘᴇᴄᴛᴇᴅ ᴛʏᴘᴇ ᴏғ CHANNELS")
-
-    text = '📑 **Iɴᴅᴇxᴇᴅ ᴄʜᴀɴɴᴇʟs/ɢʀᴏᴜᴘs**\n'
-    for channel in channels:
-        chat = await bot.get_chat(channel)
-        if chat.username:
-            text += '\n@' + chat.username
+    try:
+        if isinstance(CHANNELS, (int, str)):
+            channels = [CHANNELS]
+        elif isinstance(CHANNELS, list):
+            channels = CHANNELS
         else:
-            text += '\n' + chat.title or chat.first_name
+            raise ValueError("Unexpected type of CHANNELS")
 
-    text += f'\n\n**Total:** {len(CHANNELS)}'
+        if not channels:
+            await message.reply("No channels or groups found in CHANNELS variable.")
+            return
 
-    if len(text) < 4096:
-        await message.reply(text)
-    else:
-        file = 'Indexed channels.txt'
-        with open(file, 'w') as f:
-            f.write(text)
-        await message.reply_document(file)
-        os.remove(file)
+        text = '📑 **Indexed channels/groups**\n'
+        for channel in channels:
+            chat = await bot.get_chat(channel)
+            text += f'\n👥 **Title:** {chat.title or chat.first_name}'
+            text += f'\n🆔 **ID:** {chat.id}'
+            
+            if chat.username:
+                text += f'\n🌐 **Username:** @{chat.username}\n'
+            else:
+                invite_link = await bot.export_chat_invite_link(chat.id)
+                text += f'\n🔗 **Invite Link:** {invite_link}\n'
+                
+        text += f'**Total:** {len(channels)}'
+
+        if len(text) < 4096:
+            await message.reply(text)
+        else:
+            file = 'Indexed_channels.txt'
+            with open(file, 'w') as f:
+                f.write(text)
+            await message.reply_document(file)
+            os.remove(file)
+    except Exception as e:
+        await message.reply(f"An error occurred: {str(e)}")
 
 
 @Client.on_message(filters.command('logs') & filters.user(ADMINS))
@@ -388,6 +398,7 @@ async def log_file(bot, message):
         await message.reply_document('Logs.txt')
     except Exception as e:
         await message.reply(str(e))
+
 
 @Client.on_message(filters.command('delete') & filters.user(ADMINS))
 async def delete(bot, message):
@@ -456,6 +467,248 @@ async def delete(bot, message):
                     else:
                         await msg.edit('Fɪʟᴇ ɴᴏᴛ ғᴏᴜɴᴅ ɪɴ ᴅᴀᴛᴀʙᴀsᴇ')
 
+@Client.on_message(filters.command(['findfiles']) & filters.user(ADMINS))
+async def handle_find_files(client, message):
+    """Find files in the database based on search criteria"""
+    search_query = " ".join(message.command[1:])  # Extract the search query from the command
+
+    if not search_query:
+        return await message.reply('✨ Please provide a name.\n\nExample: /findfiles Kantara.', quote=True)
+
+    # Build the MongoDB query to search for files
+    query = {
+        'file_name': {"$regex": f".*{re.escape(search_query)}.*", "$options": "i"}
+    }
+
+    # Fetch the matching files from the database
+    results = await Media.collection.find(query).to_list(length=None)
+
+    if len(results) > 0:
+        confirmation_message = f'✨ {len(results)} files found matching the search query "{search_query}" in the database:\n\n'
+        starting_query = {
+            'file_name': {"$regex": f"^{re.escape(search_query)}", "$options": "i"}
+        }
+        starting_results = await Media.collection.find(starting_query).to_list(length=None)
+        confirmation_message += f'✨ {len(starting_results)} files found starting with "{search_query}" in the database.\n\n'
+        confirmation_message += '✨ Please select the option for easier searching:'
+
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("🌟 Find Related", callback_data=f"related_files:1:{search_query}"),
+                    InlineKeyboardButton("🌟 Find Starting", callback_data=f"starting_files:1:{search_query}")
+                ],
+                [
+                    InlineKeyboardButton("🗑️ Delete Related", callback_data=f"confirm_delete_related:{search_query}"),
+                    InlineKeyboardButton("🗑️ Delete Starting", callback_data=f"confirm_delete_starting:{search_query}")
+                ],
+                [
+                    InlineKeyboardButton("❌ Cancel", callback_data="manage:cancel")
+                ]
+            ]
+        )
+        await message.reply_text(confirmation_message, reply_markup=keyboard)
+    else:
+        await message.reply('❌ No files found matching the search query.', quote=True)
+        
+
+
+@Client.on_callback_query(filters.regex('^related_files'))
+async def find_related_files(client, callback_query):
+    data = callback_query.data.split(":")
+    page = int(data[1])
+    search_query = data[2]
+    query = {
+        'file_name': {"$regex": f".*{re.escape(search_query)}.*", "$options": "i"}
+    }
+    results = await Media.collection.find(query).to_list(length=None)
+
+    total_results = len(results)
+    num_pages = total_results // RESULTS_PER_PAGE + 1
+
+    start_index = (page - 1) * RESULTS_PER_PAGE
+    end_index = start_index + RESULTS_PER_PAGE
+    current_results = results[start_index:end_index]
+
+    result_message = f'{len(current_results)} files found with related names to "{search_query}" in the database:\n\n'
+    for result in current_results:
+        result_message += f'File Name: {result["file_name"]}\n'
+        result_message += f'File Size: {result["file_size"]}\n\n'
+
+    buttons = []
+
+    if page > 1:
+        buttons.append(InlineKeyboardButton("⬅️ Back", callback_data=f"related_files:{page-1}:{search_query}"))
+
+    if page < num_pages:
+        buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"related_files:{page+1}:{search_query}"))
+
+    buttons.append(InlineKeyboardButton("🔚 Cancel", callback_data="cancel_find"))
+
+    # Create button groups with two buttons each
+    button_groups = [buttons[i:i + 2] for i in range(0, len(buttons), 2)]
+    keyboard = InlineKeyboardMarkup(button_groups)
+
+    await callback_query.message.edit_text(result_message, reply_markup=keyboard)
+    await callback_query.answer()
+
+
+@Client.on_callback_query(filters.regex('^starting_files'))
+async def find_starting_files(client, callback_query):
+    data = callback_query.data.split(":")
+    page = int(data[1])
+    search_query = data[2]
+    query = {
+        'file_name': {"$regex": f"^{re.escape(search_query)}", "$options": "i"}
+    }
+    results = await Media.collection.find(query).to_list(length=None)
+
+    total_results = len(results)
+    num_pages = total_results // RESULTS_PER_PAGE + 1
+
+    start_index = (page - 1) * RESULTS_PER_PAGE
+    end_index = start_index + RESULTS_PER_PAGE
+    current_results = results[start_index:end_index]
+
+    result_message = f'{len(current_results)} files found with names starting "{search_query}" in the database:\n\n'
+    for result in current_results:
+        result_message += f'File Name: {result["file_name"]}\n'
+        result_message += f'File Size: {result["file_size"]}\n\n'
+
+    buttons = []
+
+    if page > 1:
+        buttons.append(InlineKeyboardButton("⬅️ Back", callback_data=f"related_files:{page-1}:{search_query}"))
+
+    if page < num_pages:
+        buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"related_files:{page+1}:{search_query}"))
+
+    buttons.append(InlineKeyboardButton("🔚 Cancel", callback_data=f"cancel_find"))
+
+    # Create button groups with two buttons each
+    button_groups = [buttons[i:i + 2] for i in range(0, len(buttons), 2)]
+    keyboard = InlineKeyboardMarkup(button_groups)
+
+    await callback_query.message.edit_text(result_message, reply_markup=keyboard)
+    await callback_query.answer()
+
+
+
+
+@Client.on_callback_query(filters.regex('^delete_related'))
+async def delete_related_files(client, callback_query):
+    file_name = callback_query.data.split(":", 1)[1]
+    result = await Media.collection.delete_many({
+        'file_name': {"$regex": f".*{re.escape(file_name)}.*", "$options": "i"}
+    })
+
+    if result.deleted_count:
+        message_text = f"✅ Deleted {result.deleted_count} files."
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("🏠 Home", callback_data="deletename"),
+                    InlineKeyboardButton("⬅️ Back", callback_data=f"confirm_delete_related:{file_name}")
+                ],
+                [
+                    InlineKeyboardButton("🔚 Cancel", callback_data="cancel_delete")
+                ]
+            ]
+        )
+    else:
+        message_text = "❌ Deletion failed. No files deleted."
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("🏠 Home", callback_data="deletename"),
+                    InlineKeyboardButton("⬅️ Back", callback_data=f"confirm_delete_related:{file_name}")
+                ],
+                [
+                    InlineKeyboardButton("🔚 Cancel", callback_data="cancel_delete")
+                ]
+            ]
+        )
+
+    await callback_query.message.edit_text(message_text, reply_markup=keyboard)
+
+@Client.on_callback_query(filters.regex('^confirm_delete_related'))
+async def confirm_delete_related_files(client, callback_query):
+    file_name = callback_query.data.split(":", 1)[1]
+    confirmation_message = f'⚠️ Are you sure you want to delete all files with the name "{file_name}"?\n\n' \
+                           f'This action cannot be undone.'
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("✅ Yes", callback_data=f"delete_related:{file_name}"),
+                InlineKeyboardButton("🏠 Home", callback_data="deletename")
+            ],
+            [
+                InlineKeyboardButton("🔚 Cancel", callback_data="cancel_delete")
+            ]
+        ]
+    )
+
+    await callback_query.message.edit_text(confirmation_message, reply_markup=keyboard)
+
+
+@Client.on_callback_query(filters.regex('^delete_starting'))
+async def delete_starting_files(client, callback_query):
+    file_name = callback_query.data.split(":", 1)[1]
+    result = await Media.collection.delete_many({
+        'file_name': {"$regex": f"^{re.escape(file_name)}", "$options": "i"}
+    })
+
+    if result.deleted_count:
+        message_text = f"✅ Deleted {result.deleted_count} files."
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("🏠 Home", callback_data="deletename"),
+                    InlineKeyboardButton("⬅️ Back", callback_data=f"confirm_delete_starting:{file_name}")
+                ],
+                [
+                    InlineKeyboardButton("🔚 Cancel", callback_data="cancel_delete")
+                ]
+            ]
+        )
+    else:
+        message_text = "❌ Deletion failed. No files deleted."
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("🏠 Home", callback_data="deletename"),
+                    InlineKeyboardButton("⬅️ Back", callback_data=f"confirm_delete_starting:{file_name}")
+                ],
+                [
+                    InlineKeyboardButton("🔚 Cancel", callback_data="cancel_delete")
+                ]
+            ]
+        )
+
+    await callback_query.message.edit_text(message_text, reply_markup=keyboard)
+    
+
+@Client.on_callback_query(filters.regex('^confirm_delete_starting'))
+async def confirm_delete_starting_files(client, callback_query):
+    file_name = callback_query.data.split(":", 1)[1]
+    confirmation_message = f'⚠️ Are you sure you want to delete all files with names starting "{file_name}"?\n\n' \
+                           f'This action cannot be undone.'
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("✅ Yes", callback_data=f"delete_starting:{file_name}"),
+                InlineKeyboardButton("🏠 Home", callback_data="deletename")
+            ],
+            [
+                InlineKeyboardButton("🔚 Cancel", callback_data="cancel_delete")
+            ]
+        ]
+    )
+
+    await callback_query.message.edit_text(confirmation_message, reply_markup=keyboard)
+
 
 @Client.on_message(filters.command('deleteall') & filters.user(ADMINS))
 async def delete_all_index(bot, message):
@@ -515,6 +768,7 @@ async def delete_all_confirm(bot, message):
     await message.answer("Eᴠᴇʀʏᴛʜɪɴɢ's Gᴏɴᴇ")
     await message.message.edit('Sᴜᴄᴄᴇsғᴜʟʟʏ Dᴇʟᴇᴛᴇᴅ Aʟʟ Tʜᴇ Iɴᴅᴇxᴇᴅ Fɪʟᴇs.')
 
+
 @Client.on_message(filters.command('settings'))
 async def settings(client, message):
     userid = message.from_user.id if message.from_user else None
@@ -567,106 +821,74 @@ async def settings(client, message):
     if settings is not None:
         buttons = [
             [
-                InlineKeyboardButton(
-                    'Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ',
-                    callback_data=f'setgs#button#{settings["button"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    'Sɪɴɢʟᴇ' if settings["button"] else 'Dᴏᴜʙʟᴇ',
+                InlineKeyboardButton('Fɪʟᴛᴇʀ Bᴜᴛᴛᴏɴ', callback_data=f'setgs#button#{settings["button"]}#{grp_id}'),
+                InlineKeyboardButton('Sɪɴɢʟᴇ' if settings["button"] else 'Dᴏᴜʙʟᴇ',
                     callback_data=f'setgs#button#{settings["button"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Fɪʟᴇ Sᴇɴᴅ Mᴏᴅᴇ',
-                    callback_data=f'setgs#botpm#{settings["botpm"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    'Mᴀɴᴜᴀʟ Sᴛᴀʀᴛ' if settings["botpm"] else 'Aᴜᴛᴏ Sᴇɴᴅ',
+                InlineKeyboardButton('Fɪʟᴇ Sᴇɴᴅ Mᴏᴅᴇ', callback_data=f'setgs#botpm#{settings["botpm"]}#{grp_id}'),
+                InlineKeyboardButton('Mᴀɴᴜᴀʟ Sᴛᴀʀᴛ' if settings["botpm"] else 'Aᴜᴛᴏ Sᴇɴᴅ',
                     callback_data=f'setgs#botpm#{settings["botpm"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ',
-                    callback_data=f'setgs#file_secure#{settings["file_secure"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ Oɴ' if settings["file_secure"] else '✘ Oғғ',
+                InlineKeyboardButton('Pʀᴏᴛᴇᴄᴛ Cᴏɴᴛᴇɴᴛ', callback_data=f'setgs#file_secure#{settings["file_secure"]}#{grp_id}'),
+                InlineKeyboardButton('✔ Oɴ' if settings["file_secure"] else '✘ Oғғ',
                     callback_data=f'setgs#file_secure#{settings["file_secure"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Iᴍᴅʙ',
-                    callback_data=f'setgs#imdb#{settings["imdb"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ Oɴ' if settings["imdb"] else '✘ Oғғ',
+                InlineKeyboardButton('Iᴍᴅʙ', callback_data=f'setgs#imdb#{settings["imdb"]}#{grp_id}'),
+                InlineKeyboardButton('✔ Oɴ' if settings["imdb"] else '✘ Oғғ',
                     callback_data=f'setgs#imdb#{settings["imdb"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Sᴘᴇʟʟ Cʜᴇᴄᴋ',
-                    callback_data=f'setgs#spell_check#{settings["spell_check"]}#{grp_id}',
-                ),
+                InlineKeyboardButton('Sᴘᴇʟʟ Cʜᴇᴄᴋ', callback_data=f'setgs#spell_check#{settings["spell_check"]}#{grp_id}'),
                 InlineKeyboardButton(
                     '✔ Oɴ' if settings["spell_check"] else '✘ Oғғ',
                     callback_data=f'setgs#spell_check#{settings["spell_check"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Wᴇʟᴄᴏᴍᴇ Msɢ',
-                    callback_data=f'setgs#welcome#{settings["welcome"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ Oɴ' if settings["welcome"] else '✘ Oғғ',
+                InlineKeyboardButton('Wᴇʟᴄᴏᴍᴇ Msɢ', callback_data=f'setgs#welcome#{settings["welcome"]}#{grp_id}'),
+                InlineKeyboardButton('✔ Oɴ' if settings["welcome"] else '✘ Oғғ',
                     callback_data=f'setgs#welcome#{settings["welcome"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ',
-                    callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{grp_id}',
-                ),
+                InlineKeyboardButton('Aᴜᴛᴏ-Dᴇʟᴇᴛᴇ', callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{grp_id}'),
                 InlineKeyboardButton(
                     '10 Mɪɴs' if settings["auto_delete"] else '✘ Oғғ',
                     callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Aᴜᴛᴏ-Fɪʟᴛᴇʀ',
-                    callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ Oɴ' if settings["auto_ffilter"] else '✘ Oғғ',
+                InlineKeyboardButton('Aᴜᴛᴏ-Fɪʟᴛᴇʀ', callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{grp_id}'),
+                InlineKeyboardButton('✔ Oɴ' if settings["auto_ffilter"] else '✘ Oғғ',
                     callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'Mᴀx Bᴜᴛᴛᴏɴs',
-                    callback_data=f'setgs#max_btn#{settings["max_btn"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '10' if settings["max_btn"] else f'{MAX_B_TN}',
+                InlineKeyboardButton('Mᴀx Bᴜᴛᴛᴏɴs', callback_data=f'setgs#max_btn#{settings["max_btn"]}#{grp_id}'),
+                InlineKeyboardButton('10' if settings["max_btn"] else f'{MAX_B_TN}',
                     callback_data=f'setgs#max_btn#{settings["max_btn"]}#{grp_id}',
                 ),
             ],
             [
-                InlineKeyboardButton(
-                    'SʜᴏʀᴛLɪɴᴋ',
+                InlineKeyboardButton('SʜᴏʀᴛLɪɴᴋ',callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{grp_id}'),
+                InlineKeyboardButton('✔ Oɴ' if settings["is_shortlink"] else '✘ Oғғ',
                     callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{grp_id}',
                 ),
-                InlineKeyboardButton(
-                    '✔ Oɴ' if settings["is_shortlink"] else '✘ Oғғ',
-                    callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{grp_id}',
-                ),
-            ],
+            ], # Add more buttons as needed
         ]
+        if user_id in ADMINS:
+            buttons.insert(1, [
+                InlineKeyboardButton('File Send Mode', callback_data=f'setgs#botpm#{settings["botpm"]}#{grp_id}'),
+                InlineKeyboardButton('Bot PM' if settings["botpm"] else 'Channel',
+                                     callback_data=f'setgs#botpm#{settings["botpm"]}#{grp_id}')
+            ])
 
         btn = [[
                 InlineKeyboardButton("Oᴘᴇɴ Hᴇʀᴇ ↓", callback_data=f"opnsetgrp#{grp_id}"),
@@ -690,9 +912,7 @@ async def settings(client, message):
                 parse_mode=enums.ParseMode.HTML,
                 reply_to_message_id=message.id
             )
-
-
-
+            
 @Client.on_message(filters.command('set_template'))
 async def save_template(client, message):
     sts = await message.reply("Cʜᴇᴄᴋɪɴɢ ᴛᴇᴍᴘʟᴀᴛᴇ...")
@@ -805,7 +1025,6 @@ async def requests(bot, message):
         except Exception as e:
             await message.reply_text(f"Eʀʀᴏʀ: {e}")
             pass
-
     else:
         success = False
     
@@ -890,3 +1109,4 @@ async def shortlink(bot, message):
     await save_group_settings(grpid, 'shortlink_api', api)
     await save_group_settings(grpid, 'is_shortlink', True)
     await reply.edit_text(f"<b>Sᴜᴄᴄᴇssғᴜʟʟʏ ᴀᴅᴅᴇᴅ sʜᴏʀᴛʟɪɴᴋ API ғᴏʀ {title}.\n\nCᴜʀʀᴇɴᴛ Sʜᴏʀᴛʟɪɴᴋ Wᴇʙsɪᴛᴇ: <code>{shortlink_url}</code>\nCᴜʀʀᴇɴᴛ API: <code>{api}</code></b>")
+    
