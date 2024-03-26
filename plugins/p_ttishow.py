@@ -8,8 +8,12 @@ from utils import add_new_chat_members, get_size, temp, get_settings
 from Script import script
 from pyrogram.errors import ChatAdminRequired, ChannelPrivate
 import asyncio
+import logging
 from pytz import timezone
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
