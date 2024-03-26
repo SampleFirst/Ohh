@@ -14,7 +14,7 @@ import pytz
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
-    new_members = [new_member.id for new_member in message.new_chat_members]
+    new_members = [member.id for member in message.new_chat_members]
     if temp.ME in new_members:
         if not await db.get_chat(message.chat.id):
             tz = pytz.timezone('Asia/Kolkata')
@@ -76,14 +76,14 @@ async def save_group(bot, message):
                 await db.save_chat_invite_link(chat_id, invite_link)
     
         if settings["welcome"]:
-            for new_member in new_members:
+            for member in new_members:
                 if temp.MELCOW.get('welcome') is not None:
                     try:
                         await temp.MELCOW['welcome'].delete()
                     except Exception as e:
                         print(e)
     
-                welcome_message = script.MELCOW_ENG.format(new_member.username, message.chat.title)
+                welcome_message = script.MELCOW_ENG.format(member.mention, message.chat.title)
                 temp.MELCOW['welcome'] = await message.reply_photo(
                     photo=MELCOW_PIC,
                     caption=welcome_message,
@@ -105,8 +105,8 @@ async def save_group(bot, message):
                 date = now.date()
                 total_members = await bot.get_chat_members_count(message.chat.id)
     
-                for new_member in new_members:
-                    await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=new_member.mention, g=new_member.id, h=new_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
+                for member in new_members:
+                    await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=member.mention, g=member.id, h=member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
         else:
             # Log new members joining the group
             tz = pytz.timezone('Asia/Kolkata')
@@ -115,12 +115,13 @@ async def save_group(bot, message):
             date = now.date()
             total_members = await bot.get_chat_members_count(message.chat.id)
     
-            for new_member in new_members:
-                await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=new_member.mention, g=new_member.id, h=new_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
+            for member in new_members:
+                await bot.send_message(LOG_CHANNEL, script.NEW_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=member.mention, g=member.id, h=member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
 
         if settings["auto_delete"]:
             await asyncio.sleep(600)
             await temp.MELCOW['welcome'].delete()
+            
             
 # Handler for logging members leaving the group
 @Client.on_message(filters.left_chat_member & filters.group)
@@ -160,6 +161,7 @@ async def goodbye(bot, message):
         left_member = message.left_chat_member  # Get the left member info
         await bot.send_message(LOG_CHANNEL, script.LEFT_MEMBER.format(a=message.chat.title, b=message.chat.id, c=message.chat.username, d=total_members, e=invite_link, f=left_member.mention, g=left_member.id, h=left_member.username, i=date, j=time, k=temp.U_NAME), disable_web_page_preview=True)
 
+
 @Client.on_message(filters.command('leave') & filters.user(ADMINS))
 async def leave_a_chat(bot, message):
     if len(message.command) == 1:
@@ -184,6 +186,7 @@ async def leave_a_chat(bot, message):
         await message.reply(f"left the chat `{chat}`")
     except Exception as e:
         await message.reply(f'Error - {e}')
+
 
 @Client.on_message(filters.command('disable') & filters.user(ADMINS))
 async def disable_chat(bot, message):
@@ -279,9 +282,9 @@ async def gen_invite(bot, message):
         return await message.reply(f'Error {e}')
     await message.reply(f'Here is your Invite Link {link.invite_link}')
 
+
 @Client.on_message(filters.command('ban') & filters.user(ADMINS))
 async def ban_a_user(bot, message):
-    # https://t.me/GetTGLink/4185
     if len(message.command) == 1:
         return await message.reply('Give me a user id / username')
     r = message.text.split(None)
@@ -310,9 +313,8 @@ async def ban_a_user(bot, message):
         await db.ban_user(k.id, reason)
         temp.BANNED_USERS.append(k.id)
         await message.reply(f"Successfully banned {k.mention}")
-
-
-    
+        
+        
 @Client.on_message(filters.command('unban') & filters.user(ADMINS))
 async def unban_a_user(bot, message):
     if len(message.command) == 1:
@@ -343,12 +345,10 @@ async def unban_a_user(bot, message):
         await db.remove_ban(k.id)
         temp.BANNED_USERS.remove(k.id)
         await message.reply(f"Successfully unbanned {k.mention}")
-
-
-    
+        
+        
 @Client.on_message(filters.command('users') & filters.user(ADMINS))
 async def list_users(bot, message):
-    # https://t.me/GetTGLink/4184
     msg = await message.reply('Getting List Of Users')
     users = await db.get_all_users()
     out = "Users Saved In DB Are:\n\n"
@@ -363,7 +363,8 @@ async def list_users(bot, message):
         with open('users.txt', 'w+') as outfile:
             outfile.write(out)
         await message.reply_document('users.txt', caption="List Of Users")
-
+        
+        
 @Client.on_message(filters.command('chats') & filters.user(ADMINS))
 async def list_chats(bot, message):
     msg = await message.reply('Getting List Of chats')
@@ -380,3 +381,4 @@ async def list_chats(bot, message):
         with open('chats.txt', 'w+') as outfile:
             outfile.write(out)
         await message.reply_document('chats.txt', caption="List Of Chats")
+        
