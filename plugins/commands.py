@@ -37,7 +37,7 @@ async def start(client, message):
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
-        await asyncio.sleep(2)
+        await asyncio.sleep(4)
         if not await db.get_chat(message.chat.id):
             await add_new_chat(client, message.chat)
         return
