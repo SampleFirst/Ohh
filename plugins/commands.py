@@ -11,7 +11,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from database.ia_filterdb import Media, Media2, get_file_details, unpack_new_file_id, get_bad_files
 from database.users_chats_db import db
 from info import CHANNELS, ADMINS, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT_ID, MAX_B_TN, IS_VERIFY, HOW_TO_VERIFY
-from utils import add_new_chat, add_new_user, get_settings, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, send_all
+from utils import get_settings, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, send_all
 from database.connections_mdb import active_connection
 import re
 import json
@@ -29,14 +29,13 @@ async def start(client, message):
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         mention = message.from_user.mention if message.from_user else message.chat.title
-        msg = await message.reply_photo(
+        await message.reply_photo(
             photo=random.choice(PICS),
             caption=script.START_TXT.format(mention, temp.U_NAME, temp.B_NAME),
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
         await asyncio.sleep(2)
-        await msg.delete()
         if not await db.get_chat(message.chat.id):
             tz = pytz.timezone('Asia/Kolkata')
             now = datetime.now(tz)
