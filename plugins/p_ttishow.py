@@ -47,18 +47,7 @@ async def save_group(bot, message):
 
             await bot.leave_chat(message.chat.id)
             return
-
-        buttons = [[
-            InlineKeyboardButton('ℹ️ Help', url=f"https://t.me/{temp.U_NAME}?start=help"),
-            InlineKeyboardButton('📢 Updates', url=CHNL_LNK)
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-
-        welcome_message = f"<b>Thank you for adding me to {message.chat.title} ❣️\n\nIf you have any questions or doubts about using me, contact support.</b>"
-        await message.reply_text(
-            text=welcome_message,
-            reply_markup=reply_markup,
-        )
+            
     else:
         settings = await get_settings(message.chat.id)
         invite_link = None  # Initialize invite_link to None
@@ -82,11 +71,11 @@ async def save_group(bot, message):
                         await temp.MELCOW['welcome'].delete()
                     except Exception as e:
                         print(e)
-    
-                welcome_message = script.MELCOW_ENG.format(a=member.mention, b=message.chat.title)
+
+                mention = message.from_user.mention if message.from_user else message.chat.title
                 temp.MELCOW['welcome'] = await message.reply_photo(
                     photo=MELCOW_PIC,
-                    caption=welcome_message,
+                    caption=script.MELCOW_ENG.format(a=mention, b=message.chat.title),
                     reply_markup=InlineKeyboardMarkup(
                         [
                             [
