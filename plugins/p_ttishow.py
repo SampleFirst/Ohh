@@ -8,8 +8,9 @@ from utils import add_new_chat_members, get_size, temp, get_settings
 from Script import script
 from pyrogram.errors import ChatAdminRequired, ChannelPrivate
 import asyncio 
-from pytz import timezone
-from datetime import datetime
+from datetime import date, datetime
+import pytz
+
 
 
 
@@ -18,7 +19,7 @@ async def save_group(bot, message):
     new_members = [member.id for member in message.new_chat_members]
     if temp.ME in new_members:
         if not await db.get_chat(message.chat.id):
-            tz = timezone('Asia/Kolkata')
+            tz = pytz.timezone('Asia/Kolkata')
             now = datetime.now(tz)
             time = now.strftime('%I:%M:%S %p')
             today = now.date()
