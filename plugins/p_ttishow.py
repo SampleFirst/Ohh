@@ -6,7 +6,7 @@ from database.users_chats_db import db
 from database.ia_filterdb import Media, Media2,  db as clientDB, db2 as clientDB2
 from utils import get_size, temp, get_settings
 from Script import script
-from pyrogram.errors import ChatAdminRequired
+from pyrogram.errors import ChatAdminRequired, ChannelPrivate
 import asyncio
 from pytz import timezone
 from datetime import datetime
@@ -161,7 +161,7 @@ async def goodbye(bot, message):
     # Get total members count
     try:
         total_members = await bot.get_chat_members_count(message.chat.id)
-    except ChatAdminRequired:
+    except ChannelPrivate:
         logger.error("Make sure Bot is admin in the group")
         total_members = "Not an Admin"
         return
