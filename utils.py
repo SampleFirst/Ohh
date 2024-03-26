@@ -61,7 +61,7 @@ async def add_new_chat(client, chat):
     await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(a=chat.title, b=chat.id, c=chat.username, d=total_members, e=total_chats, f=daily_chats, g=str(today), h=time, i="Unknown", j=temp.B_NAME, k=temp.U_NAME))
     
 async def add_new_chat_members(bot, message):
-    tz = timezone('Asia/Kolkata')
+    tz = pytz.timezone('Asia/Kolkata')
     now = datetime.now(tz)
     time = now.strftime('%I:%M:%S %p')
     today = now.date()
