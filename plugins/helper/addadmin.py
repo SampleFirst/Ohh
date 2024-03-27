@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.errors import UserNotParticipant, Forbidden
+from pyrogram.errors import UserNotParticipant
 from pyrogram.types import ChatPrivileges
 from info import ADMINS
 
@@ -16,26 +16,21 @@ async def add_channel_admin(client, message):
     user_id = int(message.command[1])
     chat_id = int(message.command[2])
 
-    privileges = ChatPrivileges(
-        can_change_info=True,
-        can_post_messages=True,
-        can_edit_messages=True,
-        can_delete_messages=True,
-        can_invite_users=True,
-        can_manage_chat=True,
-        can_manage_video_chats=True,
-        can_promote_members=True
-    )
-
     try:
-        await client.promote_chat_member(
-            chat_id,
-            user_id,
-            privileges=privileges,
+        privileges = ChatPrivileges(
+            can_change_info=True,
+            can_post_messages=True,
+            can_edit_messages=True,
+            can_delete_messages=True,
+            can_invite_users=True,
+            can_manage_chat=True,
+            can_manage_video_chats=True,
+            can_promote_members=True
         )
+        await client.promote_chat_member(chat_id, user_id, privileges=privileges)
         await message.reply("User added as an admin in the channel with specified privileges.")
-    except Forbidden as e:
-        await handle_permission_error(message, e)
+    except UserNotParticipant:
+        await message.reply("The user must be a member of the channel to use this command.")
     except Exception as e:
         await message.reply(f"An error occurred: {str(e)}")
 
@@ -52,46 +47,21 @@ async def add_group_admin(client, message):
     user_id = int(message.command[1])
     chat_id = int(message.command[2])
 
-    privileges = ChatPrivileges(
-        can_change_info=True,
-        can_delete_messages=True,
-        can_restrict_members=True,
-        can_promote_members=True,
-        can_invite_users=True,
-        can_pin_messages=True,
-        can_manage_chat=True,
-        can_manage_video_chats=True,
-        is_anonymous=True
-    )
-
     try:
-        await client.promote_chat_member(
-            chat_id,
-            user_id,
-            privileges=privileges,
+        privileges = ChatPrivileges(
+            can_change_info=True,
+            can_delete_messages=True,
+            can_restrict_members=True,
+            can_promote_members=True,
+            can_invite_users=True,
+            can_pin_messages=True,
+            can_manage_chat=True,
+            can_manage_video_chats=True,
+            is_anonymous=True
         )
+        await client.promote_chat_member(chat_id, user_id, privileges=privileges)
         await message.reply("User added as an admin in the group with specified privileges.")
-    except Forbidden as e:
-        await handle_permission_error(message, e)
+    except UserNotParticipant:
+        await message.reply("The user must be a member of the group to use this command.")
     except Exception as e:
         await message.reply(f"An error occurred: {str(e)}")
-
-async def handle_permission_error(message, error):
-    # Extract the list of restricted permissions
-    restricted_permissions = error.parameters.get("permissions", [])
-
-    # Remove the restricted permissions from the original set of privileges
-    privileges = ChatPrivileges()
-    for permission in privileges.__annotations__.keys():
-        if permission not in restricted_permissions:
-            setattr(privileges, permission, getattr(ChatPrivileges, permission))
-
-    # Retry promoting with the modified privileges
-    await message.reply("Some privileges could not be applied due to insufficient rights. Attempting to apply the remaining privileges.")
-    await client.promote_chat_member(
-        chat_id,
-        user_id,
-        privileges=privileges,
-    )
-    await message.reply("User added as an admin with the remaining privileges.")
-    
