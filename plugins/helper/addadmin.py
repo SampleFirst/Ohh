@@ -18,7 +18,7 @@ async def add_admin(client, message):
 
     try:
         chat_info = await client.get_chat(chat_id)
-        bot_privileges = chat_info.privileges
+        bot_privileges = chat_info.permissions
 
         # Construct permissions for the new admin based on the bot's current permissions
         admin_privileges = ChatPrivileges(
