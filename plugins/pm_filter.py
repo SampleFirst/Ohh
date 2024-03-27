@@ -969,7 +969,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 ],
                 # Add more buttons as needed
             ]
-            if user_id in ADMINS:
+            if userid in ADMINS:
                 buttons.insert(1, [
                     InlineKeyboardButton('File Send Mode', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
                     InlineKeyboardButton('Bot PM' if settings["botpm"] else 'Channel',
@@ -1051,7 +1051,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 ],
                 # Add more buttons as needed
             ]
-            if user_id in ADMINS:
+            if userid in ADMINS:
                 buttons.insert(1, [
                     InlineKeyboardButton('File Send Mode', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
                     InlineKeyboardButton('Bot PM' if settings["botpm"] else 'Channel',
@@ -1571,7 +1571,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 ],
                 # Add more buttons as needed
             ]
-            if user_id in ADMINS:
+            if userid in ADMINS:
                 buttons.insert(1, [
                     InlineKeyboardButton('File Send Mode', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
                     InlineKeyboardButton('Bot PM' if settings["botpm"] else 'Channel',
