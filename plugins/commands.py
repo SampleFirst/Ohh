@@ -375,17 +375,17 @@ async def channel_info(bot, message):
                 text += f'\n🌐 **Username:** @{chat.username}\n'
             else:
                 invite_link = await bot.export_chat_invite_link(chat.id)
-                text += f'\n🔗 **Invite Link:** {invite_link}\n'
+                text += f'\n🔗 **Invite:** {invite_link}\n'
                 
         text += f'**Total:** {len(channels)}'
 
         if len(text) < 4096:
-            await message.reply(text)
+            await message.reply(text, disable_web_page_preview=True)
         else:
             file = 'Indexed_channels.txt'
             with open(file, 'w') as f:
                 f.write(text)
-            await message.reply_document(file)
+            await message.reply_document(file, disable_web_page_preview=True)
             os.remove(file)
     except Exception as e:
         await message.reply(f"An error occurred: {str(e)}")
