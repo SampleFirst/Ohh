@@ -2,7 +2,7 @@ import os
 import logging
 import random
 import asyncio
-from datetime import date, datetime
+from datetime import datetime, timedelta, date, time
 import pytz
 from Script import script
 from pyrogram import Client, filters, enums
@@ -1110,3 +1110,30 @@ async def shortlink(bot, message):
     await save_group_settings(grpid, 'is_shortlink', True)
     await reply.edit_text(f"<b>Sᴜᴄᴄᴇssғᴜʟʟʏ ᴀᴅᴅᴇᴅ sʜᴏʀᴛʟɪɴᴋ API ғᴏʀ {title}.\n\nCᴜʀʀᴇɴᴛ Sʜᴏʀᴛʟɪɴᴋ Wᴇʙsɪᴛᴇ: <code>{shortlink_url}</code>\nCᴜʀʀᴇɴᴛ API: <code>{api}</code></b>")
     
+
+@Client.on_message(filters.command("verification_status"))
+async def show_verification_status(client, message):
+    user_id = message.from_user.id
+    is_verified = await check_verification(client, user_id)
+    
+    if is_verified:
+        status = await get_verify_status(user_id)
+        verification_date = status["date"]
+        verification_time = status["time"]
+        
+        tz = pytz.timezone('Asia/Kolkata')
+        expiry_date = datetime.strptime(verification_date, "%Y-%m-%d")
+        expiry_time = datetime.strptime(verification_time, "%H:%M:%S")
+        
+        expiry_datetime = tz.localize(datetime.combine(expiry_date, expiry_time.time()))
+        
+        response = f"Verification Status: Verified\n"
+        response += f"Verified Date: {verification_date}\n"
+        response += f"Verified Time: {verification_time}\n"
+        response += f"Verification Expiry Date: {expiry_datetime.date()}\n"
+        response += f"Verification Expiry Time: {expiry_datetime.time()}\n"
+    else:
+        response = "Verification Status: Not Verified"
+    
+    await message.reply_text(response)
+
