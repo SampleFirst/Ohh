@@ -27,6 +27,7 @@ async def add_channel_admin(client, message):
                 can_delete_messages=True,
                 can_invite_users=True,
                 can_manage_chat=True,
+                can_manage_video_chats=True,
                 can_promote_members=True
             ),
         )
@@ -60,7 +61,9 @@ async def add_group_admin(client, message):
                 can_promote_members=True,
                 can_invite_users=True,
                 can_pin_messages=True,
-                can_manage_chat=True
+                can_manage_chat=True,
+                can_manage_video_chats=True,
+                is_anonymous=True
             ),
         )
         await message.reply("User added as an admin in the group with specified privileges.")
