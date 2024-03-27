@@ -1116,7 +1116,7 @@ async def verification_status(client, message):
     userid = message.from_user.id
 
     verification_status = await check_verification(client, userid)
-    verify_status = await get_verify_status(user_id)
+    verify_status = await get_verify_status(userid)
     expire_date = verify_status["date"]
     expire_time = verify_status["time"]
     
