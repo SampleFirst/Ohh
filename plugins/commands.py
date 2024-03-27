@@ -1111,29 +1111,38 @@ async def shortlink(bot, message):
     await reply.edit_text(f"<b>Sᴜᴄᴄᴇssғᴜʟʟʏ ᴀᴅᴅᴇᴅ sʜᴏʀᴛʟɪɴᴋ API ғᴏʀ {title}.\n\nCᴜʀʀᴇɴᴛ Sʜᴏʀᴛʟɪɴᴋ Wᴇʙsɪᴛᴇ: <code>{shortlink_url}</code>\nCᴜʀʀᴇɴᴛ API: <code>{api}</code></b>")
     
 
-@Client.on_message(filters.command("verification_status"))
-async def show_verification_status(client, message):
+@Client.on_message(filters.command("verification_status") & filters.private)
+async def verification_status(client, message):
     user_id = message.from_user.id
-    is_verified = await check_verification(client, user_id)
+    verification_status = await check_verification(client, user_id)
+    status_text = ""
     
-    if is_verified:
-        status = await get_verify_status(user_id)
-        verification_date = status["date"]
-        verification_time = status["time"]
-        
-        tz = pytz.timezone('Asia/Kolkata')
-        expiry_date = datetime.strptime(verification_date, "%Y-%m-%d")
-        expiry_time = datetime.strptime(verification_time, "%H:%M:%S")
-        
-        expiry_datetime = tz.localize(datetime.combine(expiry_date, expiry_time.time()))
-        
-        response = f"Verification Status: Verified\n"
-        response += f"Verified Date: {verification_date}\n"
-        response += f"Verified Time: {verification_time}\n"
-        response += f"Verification Expiry Date: {expiry_datetime.date()}\n"
-        response += f"Verification Expiry Time: {expiry_datetime.time()}\n"
+    if verification_status:
+        status_text = "Verified ☑️"
     else:
-        response = "Verification Status: Not Verified"
+        status_text = "Not Verified 🚫"
+        
+    verify_status = await get_verify_status(user_id)
+    verify_date = verify_status["date"]
+    verify_time = verify_status["time"]
     
-    await message.reply_text(response)
+    if verification_status:
+        expire_date = datetime.strptime(verify_date, "%Y-%m-%d") + timedelta(days=1)
+        expire_time = datetime.strptime(verify_time, "%H:%M:%S") + timedelta(hours=12)
+        now = datetime.now(pytz.timezone('Asia/Kolkata'))
+        
+        if expire_date < now.date() or (expire_date == now.date() and expire_time < now.time()):
+            status_text = "Expired ⛔"
+        elif expire_date == now.date() and expire_time - now.time() <= timedelta(hours=1):
+            status_text = "Expire soon 🔄"
+    
+    await message.reply_text(
+        f"Verification Status: {status_text}\n\n"
+        f"Verified Date: {verify_date}\n"
+        f"Verified Time: {verify_time}\n\n"
+        f"Expire Verify Date: {expire_date}\n"
+        f"Expire Verify Time: {expire_time}\n\n"
+        f"Date left: {expire_date - now.date()}\n"
+        f"Time left: {expire_time - now.time()}"
+    )
 
