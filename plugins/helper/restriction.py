@@ -28,7 +28,7 @@ allowed_entity_types = [
 ]
 
 
-async def restrict_entity(client, message):
+async def restrict_filters(client, message):
     """
     Restricts links and logs deleted messages in a group, including additional information.
 
