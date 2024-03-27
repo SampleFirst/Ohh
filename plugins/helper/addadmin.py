@@ -3,82 +3,46 @@ from pyrogram.errors import UserNotParticipant
 from pyrogram.types import ChatPrivileges
 from info import ADMINS
 
-@Client.on_message(filters.command("addchanneladmin") & filters.private)
-async def add_channel_admin(client, message):
+@Client.on_message(filters.command("addadmin") & filters.private)
+async def add_admin(client, message):
     if message.from_user.id not in ADMINS:
         await message.reply("You must be an admin to use this command.")
         return
 
     if len(message.command) != 3:
-        await message.reply("Usage: /addchanneladmin user_id chat_id")
+        await message.reply("Usage: /addadmin user_id chat_id")
         return
 
     user_id = int(message.command[1])
     chat_id = int(message.command[2])
-    status_message = "Privileges status:\n"
 
     try:
-        privileges = ChatPrivileges(
-            can_change_info=True,
-            can_post_messages=True,
-            can_edit_messages=True,
-            can_delete_messages=True,
-            can_invite_users=True,
-            can_manage_chat=True,
-            can_manage_video_chats=True,
-            can_promote_members=True
+        chat_info = await client.get_chat(chat_id)
+        bot_privileges = chat_info.permissions
+
+        # Construct permissions for the new admin based on the bot's current permissions
+        admin_privileges = ChatPrivileges(
+            can_change_info=bot_privileges.can_change_info,
+            can_post_messages=bot_privileges.can_post_messages,
+            can_edit_messages=bot_privileges.can_edit_messages,
+            can_delete_messages=bot_privileges.can_delete_messages,
+            can_invite_users=bot_privileges.can_invite_users,
+            can_manage_chat=bot_privileges.can_manage_chat,
+            can_manage_voice_chats=bot_privileges.can_manage_voice_chats,
+            can_restrict_members=bot_privileges.can_restrict_members,
+            can_pin_messages=bot_privileges.can_pin_messages,
+            can_promote_members=bot_privileges.can_promote_members,
+            is_anonymous=bot_privileges.is_anonymous,
+            can_send_messages=True  # Example: Let the new admin send messages
         )
 
-        for privilege, value in privileges.items():
-            try:
-                await client.promote_chat_member(chat_id, user_id, privileges={privilege: value})
-                status_message += f"{privilege}: ✅\n"
-            except Exception as e:
-                status_message += f"{privilege}: ❌\n"
-
-        await message.reply("User added as an admin in the channel with specified privileges.\n" + status_message)
-    except UserNotParticipant:
-        await message.reply("The user must be a member of the channel to use this command.")
-    except Exception as e:
-        await message.reply(f"An error occurred: {str(e)}")
-
-@Client.on_message(filters.command("addgroupadmin") & filters.private)
-async def add_group_admin(client, message):
-    if message.from_user.id not in ADMINS:
-        await message.reply("You must be an admin to use this command.")
-        return
-
-    if len(message.command) != 3:
-        await message.reply("Usage: /addgroupadmin user_id chat_id")
-        return
-
-    user_id = int(message.command[1])
-    chat_id = int(message.command[2])
-    status_message = "Privileges status:\n"
-
-    try:
-        privileges = ChatPrivileges(
-            can_change_info=True,
-            can_delete_messages=True,
-            can_restrict_members=True,
-            can_promote_members=True,
-            can_invite_users=True,
-            can_pin_messages=True,
-            can_manage_chat=True,
-            can_manage_video_chats=True,
-            is_anonymous=True
+        await client.promote_chat_member(
+            chat_id,
+            user_id,
+            permissions=admin_privileges,
         )
-
-        for privilege, value in privileges.items():
-            try:
-                await client.promote_chat_member(chat_id, user_id, privileges={privilege: value})
-                status_message += f"{privilege}: ✅\n"
-            except Exception as e:
-                status_message += f"{privilege}: ❌\n"
-
-        await message.reply("User added as an admin in the group with specified privileges.\n" + status_message)
+        await message.reply("User added as an admin with specified privileges.")
     except UserNotParticipant:
-        await message.reply("The user must be a member of the group to use this command.")
+        await message.reply("The user must be a member of the chat to use this command.")
     except Exception as e:
         await message.reply(f"An error occurred: {str(e)}")
-        
