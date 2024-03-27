@@ -15,6 +15,7 @@ async def add_channel_admin(client, message):
 
     user_id = int(message.command[1])
     chat_id = int(message.command[2])
+    status_message = "Privileges status:\n"
 
     try:
         privileges = ChatPrivileges(
@@ -27,8 +28,15 @@ async def add_channel_admin(client, message):
             can_manage_video_chats=True,
             can_promote_members=True
         )
-        await client.promote_chat_member(chat_id, user_id, privileges=privileges)
-        await message.reply("User added as an admin in the channel with specified privileges.")
+
+        for privilege, value in privileges.items():
+            try:
+                await client.promote_chat_member(chat_id, user_id, privileges={privilege: value})
+                status_message += f"{privilege}: ✅\n"
+            except Exception as e:
+                status_message += f"{privilege}: ❌\n"
+
+        await message.reply("User added as an admin in the channel with specified privileges.\n" + status_message)
     except UserNotParticipant:
         await message.reply("The user must be a member of the channel to use this command.")
     except Exception as e:
@@ -46,6 +54,7 @@ async def add_group_admin(client, message):
 
     user_id = int(message.command[1])
     chat_id = int(message.command[2])
+    status_message = "Privileges status:\n"
 
     try:
         privileges = ChatPrivileges(
@@ -59,9 +68,17 @@ async def add_group_admin(client, message):
             can_manage_video_chats=True,
             is_anonymous=True
         )
-        await client.promote_chat_member(chat_id, user_id, privileges=privileges)
-        await message.reply("User added as an admin in the group with specified privileges.")
+
+        for privilege, value in privileges.items():
+            try:
+                await client.promote_chat_member(chat_id, user_id, privileges={privilege: value})
+                status_message += f"{privilege}: ✅\n"
+            except Exception as e:
+                status_message += f"{privilege}: ❌\n"
+
+        await message.reply("User added as an admin in the group with specified privileges.\n" + status_message)
     except UserNotParticipant:
         await message.reply("The user must be a member of the group to use this command.")
     except Exception as e:
         await message.reply(f"An error occurred: {str(e)}")
+        
