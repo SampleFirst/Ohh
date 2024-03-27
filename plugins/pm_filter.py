@@ -29,7 +29,7 @@ from database.gfilters_mdb import (
     get_gfilters,
     del_allg
 )
-from .plugins.helper import restrict_filters
+from plugins.helper import restrict_filters
 import logging
 
 logger = logging.getLogger(__name__)
