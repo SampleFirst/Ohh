@@ -1113,36 +1113,35 @@ async def shortlink(bot, message):
 
 @Client.on_message(filters.command("verification_status") & filters.private)
 async def verification_status(client, message):
-    user_id = message.from_user.id
-    verification_status = await check_verification(client, user_id)
-    status_text = ""
-    
-    if verification_status:
-        status_text = "Verified ☑️"
-    else:
-        status_text = "Not Verified 🚫"
-        
-    verify_status = await get_verify_status(user_id)
-    verify_date = verify_status["date"]
-    verify_time = verify_status["time"]
-    
-    if verification_status:
-        expire_date = datetime.strptime(verify_date, "%Y-%m-%d") + timedelta(days=1)
-        expire_time = datetime.strptime(verify_time, "%H:%M:%S") + timedelta(hours=12)
-        now = datetime.now(pytz.timezone('Asia/Kolkata'))
-        
-        if expire_date < now.date() or (expire_date == now.date() and expire_time < now.time()):
-            status_text = "Expired ⛔"
-        elif expire_date == now.date() and expire_time - now.time() <= timedelta(hours=1):
-            status_text = "Expire soon 🔄"
-    
-    await message.reply_text(
-        f"Verification Status: {status_text}\n\n"
-        f"Verified Date: {verify_date}\n"
-        f"Verified Time: {verify_time}\n\n"
-        f"Expire Verify Date: {expire_date}\n"
-        f"Expire Verify Time: {expire_time}\n\n"
-        f"Date left: {expire_date - now.date()}\n"
-        f"Time left: {expire_time - now.time()}"
-    )
+    userid = message.from_user.id
 
+    verification_status = await check_verification(client, userid)
+    verify_status = await get_verify_status(user_id)
+    expire_date = verify_status["date"]
+    expire_time = verify_status["time"]
+    
+    tz = pytz.timezone('Asia/Kolkata')
+    expiry_datetime = datetime.datetime.combine(expire_date, expire_time, tzinfo=tz)
+    verified_datetime = expiry_datetime - timedelta(hours=24)
+    now_datetime = datetime.datetime.now(tz)
+    date_left = (expiry_datetime - now_datetime).days
+    time_left = (expiry_datetime - now_datetime).seconds / 3600
+
+    verified_date = verified_datetime.date().strftime("%Y-%m-%d")
+    verified_time = verified_datetime.time().strftime("%H:%M:%S")
+
+    text = f"<b>Verification Status:</b> {verification_status}\n"
+    text += f"<b>Verification Date:</b> {verified_date}\n"
+    text += f"<b>Verification Time:</b> {verified_time}\n"
+    text += f"<b>Expire Date:</b> {expire_date}\n"
+    text += f"<b>Expire Time:</b> {expire_time}\n"
+    text += f"<b>Date Left:</b> {date_left} days\n"
+    text += f"<b>Time Left:</b> {time_left:.2f} hours"
+
+    await message.reply_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("Help", url="https://t.me/+mCMdCb_ymAowZmNl"),
+            ]
+        ]
+    ))
