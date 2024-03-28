@@ -45,6 +45,7 @@ SPELL_CHECK = {}
 async def give_filter(client, message):
     if message.chat.id != SUPPORT_CHAT_ID:
         restrict = await restrict_filters(client, message)
+            return 
         if not restrict:
             glob = await global_filters(client, message)
             if not glob:
@@ -61,7 +62,8 @@ async def give_filter(client, message):
                         if settings['auto_ffilter']:
                             await auto_filter(client, message)
     else:
-        restrict = await restrict_entity(client, message)
+        restrict = await restrict_filters(client, message)
+            return 
         if not restrict:
             search = message.text
             temp_files, temp_offset, total_results = await get_search_results(chat_id=message.chat.id, query=search.lower(), offset=0, filter=True)
