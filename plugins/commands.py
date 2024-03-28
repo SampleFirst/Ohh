@@ -1147,7 +1147,7 @@ async def verification(client, message):
     now_date = now.strftime("%Y-%m-%d")
     now_time = now.strftime("%H:%M:%S")
     
-    left_date = (expire_date - now_date).days
+    left_date = (expire_date - now_date)
     left_time = (expire_time - now_time)
     
     text = f"Verification Status: {status}\n\n"
