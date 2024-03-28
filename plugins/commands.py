@@ -1116,7 +1116,7 @@ async def verification_status(client, message):
     userid = message.from_user.id
 
     verification_status = await check_verification(client, userid)
-    if verification_status == "False":
+    if verification_status == "True":
         status = "Verified ☑️"
     else:
         status = "Not Verified ❌"
@@ -1132,8 +1132,8 @@ async def verification_status(client, message):
 
     await message.reply_text(text)
     
-@Client.on_message(filters.command("verification") & filters.private)
-async def verificationstatus(client, message):
+@Client.on_message(filters.command("verification_status") & filters.private)
+async def verification_status(client, message):
     userid = message.from_user.id
 
     verification_status = await check_verification(client, userid)
@@ -1146,15 +1146,11 @@ async def verificationstatus(client, message):
     expire_date = verify_status["date"]
     expire_time = verify_status["time"]
     
-    now_date = datetime.now().date()
-    now_time = datetime.now().time()
+    now_date = datetime.now("%Y-%m-%d").date()
+    now_time = datetime.now("%Y-%m-%d").time()
     
     left_date = expire_date - now_date
     left_time = expire_time - now_time
-    
-    # Format the left time to ensure it's a timedelta object
-    if left_time.days < 0:
-        left_time = timedelta(days=0, seconds=0)
     
     text = f"Verification Status: {status}\n\n"
     text += f"Expire Date: {expire_date}\n"
@@ -1163,4 +1159,3 @@ async def verificationstatus(client, message):
     text += f"Left Time: {left_time}\n"
 
     await message.reply_text(text)
-    
