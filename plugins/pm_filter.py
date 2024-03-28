@@ -7,6 +7,8 @@ import random
 import pyrogram
 lock = asyncio.Lock()
 
+import pytz
+from datetime import datatime
 from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
 from Script import script
 from database.connections_mdb import active_connection, all_connections, delete_connection, if_active, make_active, \
@@ -78,7 +80,7 @@ async def pm_text(bot, message):
     username = message.from_user.username
     user_id = message.from_user.id
 
-    tz = timezone('Asia/Kolkata')
+    tz = pytz.timezone('Asia/Kolkata')
     now = datetime.datetime.now(tz)
 
     # Get the current hour and format the time
