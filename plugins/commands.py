@@ -1118,8 +1118,8 @@ async def verification_status(client, message):
     status_text = "Verified ☑️" if verification_status else "Not Verified 🚫"
     
     verify_status = await get_verify_status(user_id)
-    expire_date = verify_status["date"]
-    expire_time = verify_status["time"]
+    expire_date = datetime.strptime(verify_status["date"], '%Y-%m-%d').date()
+    expire_time = datetime.strptime(verify_status["time"], '%H:%M').time()
     
     now = datetime.now(pytz.timezone('Asia/Kolkata'))
     
