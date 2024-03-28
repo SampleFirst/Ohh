@@ -75,14 +75,73 @@ async def give_filter(client, message):
 async def pm_text(bot, message):
     content = message.text
     user = message.from_user.first_name
+    username = message.from_user.username
     user_id = message.from_user.id
-    if content.startswith("/") or content.startswith("#"): return  # ignore commands and hashtags
-    if user_id in ADMINS: return # ignore admins
-    await message.reply_text("<b>Yᴏᴜʀ ᴍᴇssᴀɢᴇ ʜᴀs ʙᴇᴇɴ sᴇɴᴛ ᴛᴏ ᴍʏ ᴍᴏᴅᴇʀᴀᴛᴏʀs !</b>")
+
+    tz = timezone('Asia/Kolkata')
+    now = datetime.datetime.now(tz)
+
+    # Get the current hour and format the time
+    current_hour = now.hour
+    time_suffix = "AM" if current_hour < 12 else "PM"
+    formatted_time = now.strftime('%I:%M %p').lstrip('0')
+    formatted_date = now.strftime('%d %B %Y')
+
+    # Define greeting based on the current time
+    if 5 <= current_hour < 12:
+        greeting = "Good morning ☀️"
+    elif 12 <= current_hour < 18:
+        greeting = "Good afternoon 🌤️"
+    elif 18 <= current_hour < 22:
+        greeting = "Good evening 🌇"
+    else:
+        greeting = "Good night 🌙"
+
+    # Check if the user is an admin
+    if user_id in ADMINS:
+        reply_text = f"{greeting} {user}!\n\nNice to meet you, you are an admin! Have a nice day.🌟"
+    else:
+        # If not an admin, provide a standard message
+        reply_text = f"{greeting} {user}!\n\nJoin Our **𝙿𝚄𝙱𝙻𝙸𝙲 𝙶𝚁𝙾𝚄𝙿** For Sending Movie Names in Group Bot Reply Movies\n\nIf Any Bot Is Down, Check the Alternatives in **𝙼𝙾𝚁𝙴 𝙱𝙾𝚃𝚂** Official Channel"
+        
+    # Create buttons for the reply message
+    buttons = [
+        [
+            InlineKeyboardButton("𝙿𝚄𝙱𝙻𝙸𝙲 𝙶𝚁𝙾𝚄𝙿", url="https://t.me/MoviesHubBotGroup"),
+        ],
+        [
+            InlineKeyboardButton("𝙼𝙾𝚁𝙴 𝙱𝙾𝚃𝚂", url="https://t.me/iPepkornBots/8")
+        ]
+    ]
+    keyboard = InlineKeyboardMarkup(buttons)
+
+    # Send the reply message with buttons
+    reply_message = await message.reply_text(
+        text=reply_text,
+        reply_markup=keyboard,
+        quote=True
+    )
+
+    # Send the log message to the specified channel with a button to show user info
+    log_buttons = [
+        [
+            InlineKeyboardButton("User info", callback_data=f'user_info_{user_id}')
+        ]
+    ]
+    log_keyboard = InlineKeyboardMarkup(log_buttons)
+
+    # Send the log message to the specified channel
     await bot.send_message(
         chat_id=LOG_CHANNEL,
-        text=f"<b>#𝐏𝐌_𝐌𝐒𝐆\n\nNᴀᴍᴇ : {user}\n\nID : {user_id}\n\nMᴇssᴀɢᴇ : {content}</b>"
+        text=f"#PM_MSG\n\nUser: @{username}\nID: {user_id}\n\nMessage: {content}\n\nDate: {formatted_date}\nTime: {formatted_time}\n\n#{temp.U_NAME}\n#pm_{temp.U_NAME}",
+        reply_markup=log_keyboard,
     )
+
+    # Schedule a task to delete the reply_message after 5 minutes
+    await asyncio.sleep(300)
+    await message.delete()
+    await reply_message.delete()
+
 
 @Client.on_callback_query(filters.regex(r"^next"))
 async def next_page(bot, query):
