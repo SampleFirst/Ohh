@@ -1113,18 +1113,19 @@ async def shortlink(bot, message):
 
 @Client.on_message(filters.command("verification_status") & filters.private)
 async def verification_status(client, message):
-  """Shows the user's verification data if they are verified."""
-  user_id = message.from_user.id
+    """Shows the user's verification data if they are verified."""
+    user_id = message.from_user.id
 
-  # Check if user is verified
-  is_verified = await check_verification(client, user_id)
-  if not is_verified:
-    await message.reply("Not Verified")
-    return
+    if IS_VERIFY and not await check_verification(client, user_id):
+        await message.reply("Not Verified")
+        return
 
-  # Get verification details
-  status = await get_verify_status(user_id)
-  date = status["date"]
-  time = status["time"]
-
-  await message.reply(f"Verified ✅\n\nExpire Date: {date}\nExpiry Time: {time}")
+    # Get verification details
+    status = await get_verify_status(user_id)
+    if status:
+        date = status.get("date")
+        time = status.get("time")
+        await message.reply(f"Verified ✅\n\nExpire Date: {date}\nExpiry Time: {time}")
+    else:
+        await message.reply("Verification status not found.")
+        
