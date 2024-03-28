@@ -1121,16 +1121,20 @@ async def verification_status(client, message):
     
     current_datetime = datetime.now()
     expire_datetime = datetime.strptime(f"{expire_date} {expire_time}", "%Y-%m-%d %H:%M:%S")
-    remaining_time = expire_datetime - current_datetime
     
-    remaining_days = remaining_time.days
-    remaining_hours, remaining_seconds = divmod(remaining_time.seconds, 3600)
-    remaining_minutes, remaining_seconds = divmod(remaining_seconds, 60)
-    
-    text = "Verification Status:\n"
-    text += f"Expire Date: {expire_date}\n"
-    text += f"Expire Time: {expire_time}\n"
-    text += f"Remaining Time: {remaining_days} days, {remaining_hours} hours, {remaining_minutes} minutes, and {remaining_seconds} seconds."
+    if expire_datetime > current_datetime:
+        remaining_time = expire_datetime - current_datetime
+        remaining_days = remaining_time.days
+        remaining_hours, remaining_seconds = divmod(remaining_time.seconds, 3600)
+        remaining_minutes, remaining_seconds = divmod(remaining_seconds, 60)
+        remaining_days_text = f"{remaining_days} days, " if remaining_days >= 0 else ""
+        text = "Verification Status:\n"
+        text += f"Expire Date: {expire_date}\n"
+        text += f"Expire Time: {expire_time}\n"
+        text += f"Remaining Time: {remaining_days_text}{remaining_hours}:{remaining_minutes}:{remaining_seconds}"
+    else:
+        text = "Verification Status:\n"
+        text += f"Expired on: {expire_date} {expire_time}"
     
     await message.reply_text(text)
     
