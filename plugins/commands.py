@@ -1116,7 +1116,7 @@ async def verification_status(client, message):
     userid = message.from_user.id
 
     verification_status = await check_verification(client, userid)
-    if verification_status == "True":
+    if verification_status == "False":
         status = "Verified ☑️"
     else:
         status = "Not Verified ❌"
@@ -1136,27 +1136,31 @@ async def verification_status(client, message):
 async def verification(client, message):
     user_id = message.from_user.id
 
-    verification_status = await check_verification(client, user_id)
-    status = "Verified ☑️" if verification_status == "True" else "Not Verified ❌"
+    tz = pytz.timezone('Asia/Kolkata')
+
+    status = await get_verify_status(user.id)
+    expire_date = status["date"]
+    expire_time = status["time"]
     
-    verify_status = await get_verify_status(user_id)
-    expire_date = verify_status["date"]
-    expire_time = verify_status["time"]
+    expire_date_str = expire_date.strftime("%Y-%m-%d")
+    expire_time_str = expire_time.strftime("%H:%M:%S")
     
-    now = datetime.now(pytz.timezone("Asia/Kolkata"))
+    now = datetime.now(tz)
     now_date = now.strftime("%Y-%m-%d")
     now_time = now.strftime("%H:%M:%S")
     
-    left_date = (expire_date - now_date)
-    left_time = (expire_time - now_time)
+    left_date = (expire_date_str - now_date)
+    left_time = (expire_time_str - now_time)
     
-    text = f"Verification Status: {status}\n\n"
-    text += f"Expire Date: {expire_date}\n"
+    left_date_str = left_date.strftime("%Y-%m-%d")
+    left_time_str = left_time.strftime("%H:%M:%S")
+    
+    text = f"Expire Date: {expire_date}\n"
     text += f"Expire Time: {expire_time}\n\n"
     text += f"Now Date: {now_date}\n"
     text += f"Now Time: {now_time}\n\n"
-    text += f"Left Date: {left_date} days\n"
-    text += f"Left Time: {left_time} hours\n"
+    text += f"Left Date: {left_date}\n"
+    text += f"Left Time: {left_time}\n"
 
     await message.reply_text(text)
     
