@@ -44,8 +44,8 @@ SPELL_CHECK = {}
 @Client.on_message(filters.group & filters.text & filters.incoming)
 async def give_filter(client, message):
     restrict = await restrict_filters(client, message)
-    if restrict:
-        pass  # If restrict_filters triggered, don't execute further steps
+    if restrict
+        return 
     else:
         if message.chat.id != SUPPORT_CHAT_ID:
             glob = await global_filters(client, message)
