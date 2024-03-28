@@ -81,7 +81,7 @@ async def pm_text(bot, message):
     user_id = message.from_user.id
 
     tz = pytz.timezone('Asia/Kolkata')
-    now = datetime.datetime.now(tz)
+    now = datetime.now(tz)
 
     # Get the current hour and format the time
     current_hour = now.hour
