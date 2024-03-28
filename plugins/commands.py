@@ -1116,12 +1116,17 @@ async def verification_status(client, message):
     userid = message.from_user.id
 
     verification_status = await check_verification(client, userid)
+    if verification_status == "False":
+        status = "Verified ☑️"
+    else:
+        status = "Not Verified ❌"
+        
     verify_status = await get_verify_status(userid)
     expire_date = verify_status["date"]
     expire_time = verify_status["time"]
     
-
-    text = f"Verification Status: {verification_status}\n"
+    
+    text = f"Verification Status: {status}\n"
     text += f"Expire Date: {expire_date}\n"
     text += f"Expire Time: {expire_time}\n"
 
