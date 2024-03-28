@@ -1113,32 +1113,18 @@ async def shortlink(bot, message):
 
 @Client.on_message(filters.command("verification_status") & filters.private)
 async def verification_status(client, message):
-    user_id = message.from_user.id
-    verification_status = await check_verification(client, user_id)
-    status_text = "Verified ☑️" if verification_status else "Not Verified 🚫"
-    
-    verify_status = await get_verify_status(user_id)
-    expire_date = datetime.strptime(verify_status["date"], '%Y-%m-%d').date()
-    expire_time = datetime.strptime(verify_status["time"], '%H:%M').time()
-    
-    now = datetime.now(pytz.timezone('Asia/Kolkata'))
-    
-    if expire_date < now.date() or (expire_date == now.date() and expire_time < now.time()):
-        status_text = "Expired ⛔"
-    elif expire_date == now.date() and expire_time - now.time() <= timedelta(hours=1):
-        status_text = "Expire soon 🔄"
-    
-    # Count verified date and time before now
-    verified_date = expire_date - timedelta(days=1) if expire_time < now.time() else expire_date
-    verified_time = expire_time - timedelta(hours=24) if expire_time < now.time() else expire_time
-    
-    await message.reply_text(
-        f"Verification Status: {status_text}\n"
-        f"Verified Date: {verified_date}\n"
-        f"Verified Time: {verified_time}\n"
-        f"Expire Verify Date: {expire_date}\n"
-        f"Expire Verify Time: {expire_time}\n"
-        f"Date left: {expire_date - now.date()}\n"
-        f"Time left: {expire_time - now.time()}"
-    )
+  """Shows the user's verification data if they are verified."""
+  user_id = message.from_user.id
 
+  # Check if user is verified
+  is_verified = await check_verification(client, user_id)
+  if not is_verified:
+    await message.reply("Not Verified")
+    return
+
+  # Get verification details
+  status = await get_verify_status(user_id)
+  date = status["date"]
+  time = status["time"]
+
+  await message.reply(f"Verified ✅\n\nExpire Date: {date}\nExpiry Time: {time}")
