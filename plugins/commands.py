@@ -1115,61 +1115,22 @@ async def shortlink(bot, message):
 async def verification_status(client, message):
     userid = message.from_user.id
 
-    verification_status = await check_verification(client, userid)
-    if verification_status == "False":
-        status = "Verified ☑️"
-    else:
-        status = "Not Verified ❌"
-        
     verify_status = await get_verify_status(userid)
     expire_date = verify_status["date"]
     expire_time = verify_status["time"]
     
+    current_datetime = datetime.now()
+    expire_datetime = datetime.strptime(f"{expire_date} {expire_time}", "%Y-%m-%d %H:%M:%S")
+    remaining_time = expire_datetime - current_datetime
     
-    text = f"Verification Status: {status}\n"
+    remaining_days = remaining_time.days
+    remaining_hours, remaining_seconds = divmod(remaining_time.seconds, 3600)
+    remaining_minutes, remaining_seconds = divmod(remaining_seconds, 60)
+    
+    text = "Verification Status:\n"
     text += f"Expire Date: {expire_date}\n"
     text += f"Expire Time: {expire_time}\n"
-
-    await message.reply_text(text)
+    text += f"Remaining Time: {remaining_days} days, {remaining_hours} hours, {remaining_minutes} minutes, and {remaining_seconds} seconds."
     
-@Client.on_message(filters.command("verification") & filters.private)
-async def verification(client, message):
-    user_id = message.from_user.id
-
-    tz = pytz.timezone('Asia/Kolkata')
-    today = date.today()
-    now = datetime.now(tz)
-    curr_time = now.strftime("%H:%M:%S")
-    hour1, minute1, second1 = curr_time.split(":")
-    curr_time = time(int(hour1), int(minute1), int(second1))
-    
-    status = await get_verify_status(user.id)
-    date_var = status["date"]
-    time_var = status["time"]
-    
-    years, month, day = date_var.split('-')
-    comp_date = date(int(years), int(month), int(day))
-    hour, minute, second = time_var.split(":")
-    comp_time = time(int(hour), int(minute), int(second))
-
-    left_date = (expire_date_str - today)
-    left_time = (expire_time_str - now_time)
-    
-    expire_date_str = expire_date.strftime("%Y-%m-%d")
-    expire_time_str = expire_time.strftime("%H:%M:%S")
-    
-    left_date = (comp_date - now_date)
-    left_time = (comp_time - curr_time)
-    
-    left_date_str = left_date.strftime("%Y-%m-%d")
-    left_time_str = left_time.strftime("%H:%M:%S")
-    
-    text = f"Expire Date: {expire_date_str}\n"
-    text += f"Expire Time: {expire_time_str}\n\n"
-    text += f"Now Date: {today}\n"
-    text += f"Now Time: {curr_time}\n\n"
-    text += f"Left Date: {left_date_str}\n"
-    text += f"Left Time: {left_time_str}\n"
-
     await message.reply_text(text)
     
