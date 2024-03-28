@@ -1137,30 +1137,39 @@ async def verification(client, message):
     user_id = message.from_user.id
 
     tz = pytz.timezone('Asia/Kolkata')
-
+    today = date.today()
+    now = datetime.now(tz)
+    curr_time = now.strftime("%H:%M:%S")
+    hour1, minute1, second1 = curr_time.split(":")
+    curr_time = time(int(hour1), int(minute1), int(second1))
+    
     status = await get_verify_status(user.id)
-    expire_date = status["date"]
-    expire_time = status["time"]
+    date_var = status["date"]
+    time_var = status["time"]
+    
+    years, month, day = date_var.split('-')
+    comp_date = date(int(years), int(month), int(day))
+    hour, minute, second = time_var.split(":")
+    comp_time = time(int(hour), int(minute), int(second))
+
+    left_date = (expire_date_str - today)
+    left_time = (expire_time_str - now_time)
     
     expire_date_str = expire_date.strftime("%Y-%m-%d")
     expire_time_str = expire_time.strftime("%H:%M:%S")
     
-    now = datetime.now(tz)
-    now_date = now.strftime("%Y-%m-%d")
-    now_time = now.strftime("%H:%M:%S")
-    
-    left_date = (expire_date_str - now_date)
-    left_time = (expire_time_str - now_time)
+    left_date = (comp_date - now_date)
+    left_time = (comp_time - curr_time)
     
     left_date_str = left_date.strftime("%Y-%m-%d")
     left_time_str = left_time.strftime("%H:%M:%S")
     
-    text = f"Expire Date: {expire_date}\n"
-    text += f"Expire Time: {expire_time}\n\n"
-    text += f"Now Date: {now_date}\n"
-    text += f"Now Time: {now_time}\n\n"
-    text += f"Left Date: {left_date}\n"
-    text += f"Left Time: {left_time}\n"
+    text = f"Expire Date: {expire_date_str}\n"
+    text += f"Expire Time: {expire_time_str}\n\n"
+    text += f"Now Date: {today}\n"
+    text += f"Now Time: {curr_time}\n\n"
+    text += f"Left Date: {left_date_str}\n"
+    text += f"Left Time: {left_time_str}\n"
 
     await message.reply_text(text)
     
