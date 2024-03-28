@@ -1133,7 +1133,7 @@ async def verification_status(client, message):
     await message.reply_text(text)
     
 @Client.on_message(filters.command("verification") & filters.private)
-async def verification_status(client, message):
+async def verification(client, message):
     user_id = message.from_user.id
 
     verification_status = await check_verification(client, user_id)
@@ -1147,8 +1147,8 @@ async def verification_status(client, message):
     now_date = now.strftime("%Y-%m-%d")
     now_time = now.strftime("%H:%M:%S")
     
-    left_date = (expire_date - now).days
-    left_time = (expire_time - now).seconds // 3600  # Convert seconds to hours
+    left_date = (expire_date - now_date).days
+    left_time = (expire_time - now_time)
     
     text = f"Verification Status: {status}\n\n"
     text += f"Expire Date: {expire_date}\n"
@@ -1159,3 +1159,4 @@ async def verification_status(client, message):
     text += f"Left Time: {left_time} hours\n"
 
     await message.reply_text(text)
+    
