@@ -43,11 +43,11 @@ SPELL_CHECK = {}
 
 @Client.on_message(filters.group & filters.text & filters.incoming)
 async def give_filter(client, message):
+    restrict = await restrict_filters(client, message)
+    if restrict:
+        return  # If restrict_filters triggered, don't execute further steps
+    
     if message.chat.id != SUPPORT_CHAT_ID:
-        restrict = await restrict_filters(client, message)
-        if restrict:
-            return
-
         glob = await global_filters(client, message)
         if not glob:
             manual = await manual_filters(client, message)
@@ -60,19 +60,15 @@ async def give_filter(client, message):
                     grpid = await active_connection(str(message.from_user.id))
                     await save_group_settings(grpid, 'auto_ffilter', True)
                     settings = await get_settings(message.chat.id)
-                    if settings.get('auto_ffilter'):
+                    if settings['auto_ffilter']:
                         await auto_filter(client, message)
     else:
-        restrict = await restrict_filters(client, message)
-        if restrict:
-            return
-
         search = message.text
         temp_files, temp_offset, total_results = await get_search_results(chat_id=message.chat.id, query=search.lower(), offset=0, filter=True)
         if total_results == 0:
             return
         else:
-            await message.reply_text(
+            return await message.reply_text(
                 text=f"<b>Hᴇʏ {message.from_user.mention}, {str(total_results)} ʀᴇsᴜʟᴛs ᴀʀᴇ ғᴏᴜɴᴅ ɪɴ ᴍʏ ᴅᴀᴛᴀʙᴀsᴇ ғᴏʀ ʏᴏᴜʀ ᴏ̨ᴜᴇʀʏ {search}. Kɪɴᴅʟʏ ᴜsᴇ ɪɴʟɪɴᴇ sᴇᴀʀᴄʜ ᴏʀ ᴍᴀᴋᴇ ᴀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴀᴅᴅ ᴍᴇ ᴀs ᴀᴅᴍɪɴ ᴛᴏ ɢᴇᴛ ᴍᴏᴠɪᴇ ғɪʟᴇs. Tʜɪs ɪs ᴀ sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ sᴏ ᴛʜᴀᴛ ʏᴏᴜ ᴄᴀɴ'ᴛ ɢᴇᴛ ғɪʟᴇs ғʀᴏᴍ ʜᴇʀᴇ...</b>",
                 parse_mode=enums.ParseMode.HTML
             )
