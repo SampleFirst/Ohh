@@ -1122,18 +1122,14 @@ async def verification_status(client, message):
     current_datetime = datetime.now()
     expire_datetime = datetime.strptime(f"{expire_date} {expire_time}", "%Y-%m-%d %H:%M:%S")
     
-    # Subtract 12 hours from the expiration datetime
-    check_datetime = expire_datetime - timedelta(hours=12)
-    final_datetime = check_datetime - current_datetime
-    
-    if check_datetime > current_datetime:
-        remaining_time = final_datetime - timedelta(hours=12)
+    if expire_datetime > current_datetime:
+        remaining_time = expire_datetime - current_datetime
         remaining_days = remaining_time.days
         remaining_hours, remaining_seconds = divmod(remaining_time.seconds, 3600)
         remaining_minutes, remaining_seconds = divmod(remaining_seconds, 60)
         remaining_days_text = f"{remaining_days} days, " if remaining_days >= 0 else ""
         text = "Verification Status:\n"
-        text += f"Verified Date Time: {check_datetime}\n"
+        text += f"Verified Date Time: {current_datetime}\n"
         text += f"Expire Date: {expire_date}\n"
         text += f"Expire Time: {expire_time}\n"
         text += f"Remaining Time: {remaining_days_text}{remaining_hours:02d}:{remaining_minutes:02d}:{remaining_seconds:02d}"
@@ -1143,4 +1139,3 @@ async def verification_status(client, message):
     
     await message.reply_text(text)
     
-
