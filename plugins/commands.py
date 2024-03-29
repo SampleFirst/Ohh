@@ -1126,17 +1126,11 @@ async def verification(client, message):
     check_datetime = expire_datetime - timedelta(hours=12)
     
     if check_datetime > current_datetime:
-        remaining_time = check_datetime - current_datetime
-        remaining_days = remaining_time.days
-        remaining_hours, remaining_seconds = divmod(remaining_time.seconds, 3600)
-        remaining_minutes, remaining_seconds = divmod(remaining_seconds, 60)
-        remaining_days_text = f"{remaining_days} days, " if remaining_days >= 0 else ""
-        text = "Status: Verified ☑️\n"
+        text = "Status: Verified ☑\n\n"
         text += f"Verified Date: {check_datetime.date()}\n"
         text += f"Verified Time: {check_datetime.time()}\n\n"
         text += f"Expire Date: {expire_date}\n"
         text += f"Expire Time: {expire_time}\n\n"
-        text += f"Used Time: {remaining_days_text} Day {remaining_hours:02d}:{remaining_minutes:02d}:{remaining_seconds:02d}"
     else:
         text = "Status: Not Verified ❌\n"
         text += f"Expired on: {expire_date} {expire_time}"
