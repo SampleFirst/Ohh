@@ -685,6 +685,11 @@ async def send_all(bot, userid, files, ident):
             return f"Eʀʀᴏʀ: {e}"
     return 'done'
 
+async def send_verification_log(bot, userid, token, date_temp, time_temp):
+    user = await bot.get_users(int(userid))
+    log_message = f"#VerificationLog:\nUser ID: {user.id}\nUser Name: {user.mention}\nDate: {date_temp}\nTime: {time_temp}\nToken: {token}"
+    await bot.send_message(LOG_CHANNEL, log_message)
+    
 async def get_verify_status(userid):
     status = temp.VERIFY.get(userid)
     if not status:
@@ -692,14 +697,27 @@ async def get_verify_status(userid):
         temp.VERIFY[userid] = status
     return status
     
-async def update_verify_status(userid, date_temp, time_temp):
+async def update_verify_status(bot, userid, token, date_temp, time_temp):
     status = await get_verify_status(userid)
     status["date"] = date_temp
     status["time"] = time_temp
     temp.VERIFY[userid] = status
     await db.update_verification(userid, date_temp, time_temp)
-
+    await send_verification_log(bot, userid, token, date_temp, time_temp)
+    
 async def verify_user(bot, userid, token):
+    user = await bot.get_users(int(userid))
+    if not await db.is_user_exist(user.id):
+        await db.add_user(user.id, user.first_name)
+        await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(user.id, user.mention))
+    TOKENS[user.id] = {token: True}
+    tz = pytz.timezone('Asia/Kolkata')
+    date_var = datetime.now(tz)+timedelta(hours=12)
+    temp_time = date_var.strftime("%H:%M:%S")
+    date_var, time_var = str(date_var).split(" ")
+    await update_verify_status(bot, user.id, token, date_var, temp_time)
+
+async def check_verification(bot, userid):
     user = await bot.get_users(int(userid))
     if not await db.is_user_exist(user.id):
         await db.add_user(user.id, user.first_name)
