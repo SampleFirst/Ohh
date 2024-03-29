@@ -1124,9 +1124,10 @@ async def verification_status(client, message):
     
     # Subtract 12 hours from the expiration datetime
     check_datetime = expire_datetime - timedelta(hours=12)
+    final_datetime = check_datetime - current_datetime
     
     if check_datetime > current_datetime:
-        remaining_time = current_datetime - expire_datetime
+        remaining_time = timedelta(hours=12) - final_datetime
         remaining_days = remaining_time.days
         remaining_hours, remaining_seconds = divmod(remaining_time.seconds, 3600)
         remaining_minutes, remaining_seconds = divmod(remaining_seconds, 60)
