@@ -1111,8 +1111,8 @@ async def shortlink(bot, message):
     await reply.edit_text(f"<b>Sᴜᴄᴄᴇssғᴜʟʟʏ ᴀᴅᴅᴇᴅ sʜᴏʀᴛʟɪɴᴋ API ғᴏʀ {title}.\n\nCᴜʀʀᴇɴᴛ Sʜᴏʀᴛʟɪɴᴋ Wᴇʙsɪᴛᴇ: <code>{shortlink_url}</code>\nCᴜʀʀᴇɴᴛ API: <code>{api}</code></b>")
     
 
-@Client.on_message(filters.command("verification_status") & filters.private)
-async def verification_status(client, message):
+@Client.on_message(filters.command("verification") & filters.private)
+async def verification(client, message):
     userid = message.from_user.id
 
     verify_status = await get_verify_status(userid)
@@ -1122,19 +1122,23 @@ async def verification_status(client, message):
     current_datetime = datetime.now()
     expire_datetime = datetime.strptime(f"{expire_date} {expire_time}", "%Y-%m-%d %H:%M:%S")
     
-    if expire_datetime > current_datetime:
-        remaining_time = expire_datetime - current_datetime
+    # Subtract 12 hours from the expiration datetime
+    check_datetime = expire_datetime - timedelta(hours=12)
+    
+    if check_datetime > current_datetime:
+        remaining_time = check_datetime - current_datetime
         remaining_days = remaining_time.days
         remaining_hours, remaining_seconds = divmod(remaining_time.seconds, 3600)
         remaining_minutes, remaining_seconds = divmod(remaining_seconds, 60)
         remaining_days_text = f"{remaining_days} days, " if remaining_days >= 0 else ""
-        text = "Verification Status:\n"
-        text += f"Verified Date Time: {current_datetime}\n"
+        text = "Status: Verified ☑️\n"
+        text += f"Verified Date: {check_datetime.date()}\n"
+        text += f"Verified Time: {check_datetime.time()}\n\n"
         text += f"Expire Date: {expire_date}\n"
-        text += f"Expire Time: {expire_time}\n"
-        text += f"Remaining Time: {remaining_days_text}{remaining_hours:02d}:{remaining_minutes:02d}:{remaining_seconds:02d}"
+        text += f"Expire Time: {expire_time}\n\n"
+        text += f"Used Time: {remaining_days_text} Day {remaining_hours:02d}:{remaining_minutes:02d}:{remaining_seconds:02d}"
     else:
-        text = "Verification Status:\n"
+        text = "Status: Not Verified ❌\n"
         text += f"Expired on: {expire_date} {expire_time}"
     
     await message.reply_text(text)
