@@ -104,15 +104,12 @@ async def pm_text(bot, message):
         reply_text = f"{greeting} {user}!\n\nNice to meet you, you are an admin! Have a nice day.🌟"
     else:
         # If not an admin, provide a standard message
-        reply_text = f"{greeting} {user}!\n\nJoin Our **𝙿𝚄𝙱𝙻𝙸𝙲 𝙶𝚁𝙾𝚄𝙿** For Sending Movie Names in Group Bot Reply Movies\n\nIf Any Bot Is Down, Check the Alternatives in **𝙼𝙾𝚁𝙴 𝙱𝙾𝚃𝚂** Official Channel"
+        reply_text = f"{greeting} {user}!\n\nJoin Our **𝙿𝚄𝙱𝙻𝙸𝙲 𝙶𝚁𝙾𝚄𝙿** For Sending Movie Names in Group Bot Reply Movies"
         
     # Create buttons for the reply message
     buttons = [
         [
-            InlineKeyboardButton("𝙿𝚄𝙱𝙻𝙸𝙲 𝙶𝚁𝙾𝚄𝙿", url="https://t.me/MoviesHubBotGroup"),
-        ],
-        [
-            InlineKeyboardButton("𝙼𝙾𝚁𝙴 𝙱𝙾𝚃𝚂", url="https://t.me/iPepkornBots/8")
+            InlineKeyboardButton("𝙿𝚄𝙱𝙻𝙸𝙲 𝙶𝚁𝙾𝚄𝙿", url="https://t.me/+xxOQC_aibFNlOWY1")
         ]
     ]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -138,12 +135,11 @@ async def pm_text(bot, message):
         text=f"#PM_MSG\n\nUser: @{username}\nID: {user_id}\n\nMessage: {content}\n\nDate: {formatted_date}\nTime: {formatted_time}\n\n#{temp.U_NAME}\n#pm_{temp.U_NAME}",
         reply_markup=log_keyboard,
     )
-
     # Schedule a task to delete the reply_message after 5 minutes
     await asyncio.sleep(300)
-    await message.delete()
-    await reply_message.delete()
-
+    if user_id not in ADMINS:
+        await message.delete()
+        await reply_message.delete()
 
 @Client.on_callback_query(filters.regex(r"^next"))
 async def next_page(bot, query):
