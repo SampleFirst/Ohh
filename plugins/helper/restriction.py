@@ -1,6 +1,6 @@
 import logging
 from pyrogram import Client, filters, enums
-from pyrogram.errors.exceptions.bad_request_400 import MessageDeleteForbidden
+from pyrogram.errors.exceptions.forbidden_403 import MessageDeleteForbidden
 from pyrogram.enums import MessageEntityType, ChatMemberStatus
 from info import ADMINS, LOG_CHANNEL
 
