@@ -141,6 +141,13 @@ async def pm_text(bot, message):
         await message.delete()
         await reply_message.delete()
 
+# Define a function to delete messages containing a specific text
+@Client.on_message(filters.channel & filters.text)
+async def delete_aut_messages(client, message):
+    if "@Auto_Forward_Messages_Bot" in message.text:
+        await message.delete()
+
+
 @Client.on_callback_query(filters.regex(r"^next"))
 async def next_page(bot, query):
     ident, req, key, offset = query.data.split("_")
