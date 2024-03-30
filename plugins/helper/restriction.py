@@ -78,4 +78,4 @@ async def restrict_filters(client, message):
             await client.send_message(LOG_CHANNEL, log_message)
         except Exception as e:
             logging.error(f"Error deleting message: {e}")
-            
+    return False
