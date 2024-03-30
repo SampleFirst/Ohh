@@ -598,7 +598,8 @@ async def get_token(bot, userid, link, fileid):
     year, month, day = date_var.split("-")
     last_datetime = datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute), second=int(second))
     tz = pytz.timezone('Asia/Kolkata')
-    curr_datetime = datetime.now(tz)
+    last_datetime = tz.localize(last_datetime)  # Make last_datetime timezone-aware
+    curr_datetime = datetime.now(tz)  # Current datetime with timezone information   
     diff = curr_datetime - last_datetime
     if diff.total_seconds() < 43200:  # 12 hours in seconds
         vr_num = 2
