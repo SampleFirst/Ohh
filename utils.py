@@ -29,6 +29,7 @@ BTN_URL_REGEX = re.compile(
 imdb = Cinemagoer()
 TOKENS = {}
 VERIFIED = {}
+URLINK = {}
 BANNED = {}
 SMART_OPEN = '“'
 SMART_CLOSE = '”'
@@ -602,10 +603,11 @@ async def get_token(bot, userid, link, fileid):
     curr_datetime = datetime.now(tz)  # Current datetime with timezone information   
     diff = curr_datetime - last_datetime
     if diff.total_seconds() > 43200:  # 12 hours in seconds
-        vr_num = 2 # ziplinker 
+        vr_num = 2 # ziplinker.net/gKqwcQ 
     else:
-        vr_num = 1 # clickfly
+        vr_num = 1 # omnifly.in.net/dNJa5
     shortened_verify_url = await get_verify_shorted_link(vr_num, url)
+    URLINK[user.id] = {shortened_verify_url}
     return str(shortened_verify_url)
 
 
@@ -688,9 +690,10 @@ async def send_all(bot, userid, files, ident):
             return f"Eʀʀᴏʀ: {e}"
     return 'done'
 
-async def send_verification_log(bot, userid, token, date_temp, time_temp):
+async def send_verification_log(bot, userid, date_temp, time_temp):
     user = await bot.get_users(int(userid))
-    log_message = f"#VerificationLog:\nUser ID: {user.id}\nUser Name: {user.mention}\nDate: {date_temp}\nTime: {time_temp}\nToken: {token}"
+    url = URLINK[user.id]
+    log_message = f"#VerificationLog:\nUser ID: {user.id}\nUser Name: {user.mention}\nDate: {date_temp}\nTime: {time_temp}\nUrl: {url}"
     await bot.send_message(LOG_CHANNEL, log_message)
     
 async def get_verify_status(userid):
@@ -700,13 +703,13 @@ async def get_verify_status(userid):
         temp.VERIFY[userid] = status
     return status
     
-async def update_verify_status(bot, userid, token, date_temp, time_temp):
+async def update_verify_status(bot, userid, date_temp, time_temp):
     status = await get_verify_status(userid)
     status["date"] = date_temp
     status["time"] = time_temp
     temp.VERIFY[userid] = status
     await db.update_verification(userid, date_temp, time_temp)
-    await send_verification_log(bot, userid, token, date_temp, time_temp)
+    await send_verification_log(bot, userid, date_temp, time_temp)
     
 async def verify_user(bot, userid, token):
     user = await bot.get_users(int(userid))
