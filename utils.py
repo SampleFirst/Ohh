@@ -601,10 +601,10 @@ async def get_token(bot, userid, link, fileid):
     last_datetime = tz.localize(last_datetime)  # Make last_datetime timezone-aware
     curr_datetime = datetime.now(tz)  # Current datetime with timezone information   
     diff = curr_datetime - last_datetime
-    if diff.total_seconds() < 43200:  # 12 hours in seconds
-        vr_num = 2
+    if diff.total_seconds() > 43200:  # 12 hours in seconds
+        vr_num = 2 # ziplinker 
     else:
-        vr_num = 1
+        vr_num = 1 # clickfly
     shortened_verify_url = await get_verify_shorted_link(vr_num, url)
     return str(shortened_verify_url)
 
