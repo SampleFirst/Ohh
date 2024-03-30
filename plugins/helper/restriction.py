@@ -1,7 +1,6 @@
-# restriction.py
-import asyncio
 import logging
 from pyrogram import Client, filters, enums
+from pyrogram.errors.exceptions.bad_request_400 import MessageDeleteForbidden
 from pyrogram.enums import MessageEntityType, ChatMemberStatus
 from info import ADMINS, LOG_CHANNEL
 
@@ -43,17 +42,20 @@ async def restrict_filters(client, message):
     title = message.chat.title
     user_id = message.from_user.id
 
-    st = await client.get_chat_member(grp_id, user_id)
-    if (
-        st.status == enums.ChatMemberStatus.ADMINISTRATOR
-        and st.status == enums.ChatMemberStatus.OWNER
-        and str(user_id) in ADMINS
-    ):
-        return  # Skip processing for admins or owners
-        
+    try:
+        # Check if user is an admin or owner
+        st = await client.get_chat_member(grp_id, user_id)
+        if (
+            st.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
+            or str(user_id) in ADMINS
+        ):
+            return  # Skip processing for admins, owners, or listed ADMINS
+    except Exception as e:
+        logging.error(f"Error checking user status: {e}")
+
     deleted_entities = []
     for entity in message.entities:
-        if entity.type in allowed_entity_types:  # Use a defined list
+        if entity.type in allowed_entity_types:
             deleted_entities.append(entity.type)  # Track deleted entities
         else:
             return  # Skip processing if message contains entities not in allowed_entity_types
@@ -76,6 +78,10 @@ async def restrict_filters(client, message):
             # Delete the message, handling potential exceptions
             await message.delete()
             await client.send_message(LOG_CHANNEL, log_message)
+        except MessageDeleteForbidden:
+            logging.error("Permission denied to delete message")
         except Exception as e:
             logging.error(f"Error deleting message: {e}")
+
+        return True  # Indicate that the message was processed and deleted
     return False
