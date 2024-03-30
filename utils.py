@@ -57,7 +57,7 @@ async def add_new_user(client, user):
     total_users = await db.total_users_count() + 1
     daily_users = await db.daily_users_count(today) + 1
     await db.add_user(user.id, user.first_name)
-    await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(a=user.id, b=user.mention, c=user.username, d=total_users, e=daily_users, f=str(today), g=time, h=temp.B_NAME, i=temp.U_NAME))
+    await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(a=user.id, b=user.mention, c=user.username, d=total_users, e=daily_users, f=str(today), g=time, h=temp.U_NAME))
     
 
 async def is_subscribed(bot, query=None, userid=None):
