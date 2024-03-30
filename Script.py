@@ -266,8 +266,8 @@ Time: <code>{h}</code>
 Added By: {i}
 By @{j}
 
-#{k}
-#Chat_{k}
+#{j}
+#Chat_{j}
 """
     
     LOG_TEXT_P = """#NewUsers 😀
@@ -283,8 +283,8 @@ Date: <code>{f}</code>
 Time: <code>{g}</code>
 
 By @{h}
-#{i}
-#User_{i}
+#{h}
+#User_{h}
 """
     
     NEW_MEMBER = """#NewMember 😀
