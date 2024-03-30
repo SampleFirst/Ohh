@@ -51,11 +51,11 @@ COLLECTION_NAME = environ.get('COLLECTION_NAME', 'Telegram_files')
 
 # Others
 IS_VERIFY = is_enabled((environ.get('IS_VERIFY', 'True')), True)
-HOW_TO_VERIFY = environ.get('HOW_TO_VERIFY', "https://t.me/c/1845700490/3")
+HOW_TO_VERIFY = environ.get('HOW_TO_VERIFY', "https://t.me/c/2020858146/4")
 VERIFY2_URL = environ.get('VERIFY2_URL', "ziplinker.net")
 VERIFY2_API = environ.get('VERIFY2_API', "603c7a037b8bf4d5a9d2eaa43df6b84783da7aa6")
-SHORTLINK_URL = environ.get('SHORTLINK_URL', "ziplinker.net")
-SHORTLINK_API = environ.get('SHORTLINK_API', "0624acdfc44b60085f59cf5741e93ba27b8c56e3")
+SHORTLINK_URL = environ.get('SHORTLINK_URL', "omnifly.in.net")
+SHORTLINK_API = environ.get('SHORTLINK_API', "2f07494c29d95eacffbc5d6998bc56c91b8ee47d")
 IS_SHORTLINK = is_enabled((environ.get('IS_SHORTLINK', 'False')), False)
 DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '0').split()]
 MAX_B_TN = environ.get("MAX_B_TN", "5")
