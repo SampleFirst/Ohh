@@ -514,11 +514,11 @@ async def get_shortlink(chat_id, link):
 
 async def get_verify_shorted_link(num, link):
     if int(num) == 1:
-        API = VERIFY2_API
-        URL = VERIFY2_URL
-    else:
         API = SHORTLINK_API
         URL = SHORTLINK_URL
+    else:
+        API = VERIFY2_API
+        URL = VERIFY2_URL
     https = link.split(":")[0]
     if "http" == https:
         https = "https"
